@@ -2,10 +2,10 @@
 Meet Bob
 ========
 
-Bob is my collection of build tools. The goal is to provide a simple interface to build and test projects without having to remember or lookup various commands.
+Bob is my collection of build tools. The goal is to provide a simple interface
+to build and test projects without having to remember or lookup various commands.
 
 For now, this project limits itself to C/C++ projects.
-
 
 Development
 ===========
@@ -21,10 +21,32 @@ Development
 
   ::
 
-    pip install -e .[testing]
+    pip install -e .[develop]
 
 3. Test:
 
   ::
 
+    pytest
+
+
+Run the complete test-suite
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. Install locally:
+
+  ::
+
+    pip install -e .[testing]
+
+2. Test:
+
+  ::
+
     tox .
+
+
+Roadmap
+=======
+
+1. Python support

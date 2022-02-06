@@ -4,3 +4,11 @@ requires = [
     "wheel"
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+addopts = "--cov=src/bob --cov-report=term-missing"
+minversion = 6.0
+required_plugins = "pytest-cov>=3.0.0"
+testpaths = [
+    "tests",
+]
