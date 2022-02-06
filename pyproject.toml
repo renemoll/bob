@@ -12,3 +12,10 @@ required_plugins = "pytest-cov>=3.0.0"
 testpaths = [
     "tests",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39']
+
+[tool.pydocstyle]
+convention = "google"

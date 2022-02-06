@@ -45,6 +45,13 @@ Run the complete test-suite
 
     tox .
 
+Configured tools
+~~~~~~~~~~~~~~~~
+
+1. `black` for code formatting.
+2. `flake8` for linting (`flake8-bugbear`), docstyle checking (`flake8-docstrings`), additional format checks (`flake8-import-order`).
+
+
 
 Roadmap
 =======
