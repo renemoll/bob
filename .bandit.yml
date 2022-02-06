@@ -1,0 +1,2 @@
+skips:
+  - B404  # Ignore warnings about importing subprocess

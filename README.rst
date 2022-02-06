@@ -49,9 +49,9 @@ Configured tools
 ~~~~~~~~~~~~~~~~
 
 1. `black` for code formatting.
-2. `flake8` for linting (`flake8-bugbear`), docstyle checking (`flake8-docstrings`), additional format checks (`flake8-import-order`).
-3. `pylint`
-
+2. `flake8` for linting, static analysis (`flake8-bugbear`), docstyle checking (`flake8-docstrings`), additional format checks (`flake8-import-order`.)
+3. `pylint` for linting.
+4. `bandit` for static analysis.
 
 Roadmap
 =======
