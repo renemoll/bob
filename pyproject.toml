@@ -19,3 +19,7 @@ target-version = ['py38', 'py39']
 
 [tool.pydocstyle]
 convention = "google"
+
+[tool.mypy]
+mypy_path = "./src/bob/;./tests/"
+show_error_codes = true
