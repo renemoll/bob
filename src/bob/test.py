@@ -1,4 +1,8 @@
+"""Module focussing on the `test` command.
 
-
-def bob_test(options):
-	pass
+Contains the task and helpers to execute unit-tests.
+"""
+#
+#
+# def bob_test(options):
+# 	pass
