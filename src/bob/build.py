@@ -35,31 +35,18 @@ def bob_build(
     output_folder = _determine_output_folder(options["build"])
     logging.debug("Determined output folder: %s", output_folder)
 
-    # 	def generate_build_env():
-    # 		steps = []
-    # 		if options['use-container']:
-    # 			steps += container_command(options['build']['target'], cwd)
-    #
-    # 		steps += build_system_command(options, output_folder)
-    #
-    # 		if options['build']['target'] == BuildTarget.Stm32:
-    # 			steps += build_stm32()
-    #
-    # 		return steps
-
-    def build_project() -> typing.List[typing.List[str]]:
+    def build_project() -> typing.List[str]:
         steps = []
 
         if options["use-container"]:
-            steps += container_command(options["build"]["target"], cwd)
+            steps += _generate_container_command(options["build"]["target"], cwd)
 
-        steps += build_project_command(output_folder)
+        steps += _generate_build_project_command(output_folder)
 
         return steps
 
     return [
-        # generate_build_env(),
-        build_project()
+        build_project(),
     ]
 
 
@@ -67,7 +54,9 @@ def _determine_output_folder(options: typing.Dict[str, str]) -> str:
     return f"{options['target']}-{options['config']}".lower()
 
 
-def container_command(target: BuildTarget, cwd: pathlib.Path) -> typing.List[str]:
+def _generate_container_command(
+    target: BuildTarget, cwd: pathlib.Path
+) -> typing.List[str]:
     """Generate a Docker command to prepend the build command.
 
     Args:
@@ -99,26 +88,6 @@ def container_command(target: BuildTarget, cwd: pathlib.Path) -> typing.List[str
     return []
 
 
-# def build_system_command(options, output_folder):
-# 	cmd = ["cmake",
-# 		"-B", "build/{}".format(output_folder),
-# 		"-S", ".",
-# 		"-DCMAKE_BUILD_TYPE={}".format(str(options['build']['config']))
-# 		# "–warn-uninitialized"
-# 	]
-#
-# 	if options['build']['target'] in (BuildTarget.Linux, BuildTarget.Stm32):
-# 		cmd += [
-# 			"-G", "Ninja",
-# 		]
-#
-# 	return cmd
-#
-#
-# def build_stm32():
-# 	return ["-DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-stm32f767.cmake"]
-
-
-def build_project_command(output_folder: str) -> str:
+def _generate_build_project_command(output_folder: str) -> str:
     """Generate the build command."""
     return ["cmake", "--build", "build/{}".format(output_folder)]

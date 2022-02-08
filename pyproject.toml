@@ -21,7 +21,7 @@ directory = "build/cov-html/"
 
 
 [tool.pytest.ini_options]
-addopts = "--cov"
+addopts = "--cov -vv"
 minversion = 6.0
 required_plugins = "pytest-cov>=3.0.0"
 testpaths = [

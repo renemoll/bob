@@ -15,7 +15,7 @@ class Command(enum.Enum):
 
     def __str__(self: "Command") -> str:
         """String conversion."""
-        return self.name.lower()
+        return self.name
 
 
 #
@@ -40,7 +40,7 @@ class BuildConfig(enum.Enum):
 
     def __str__(self: "BuildConfig") -> str:
         """String conversion."""
-        return self.name.lower()
+        return self.name
 
 
 # def determine_build_config(args):
@@ -66,7 +66,7 @@ class BuildTarget(enum.Enum):
 
     def __str__(self: "BuildTarget") -> str:
         """String conversion."""
-        return self.name.lower()
+        return self.name
 
 
 #
