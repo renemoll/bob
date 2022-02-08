@@ -5,8 +5,23 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[tool.coverage.paths]
+source = ["src", "*/site-packages"]
+
+[tool.coverage.run]
+branch = true
+source = ["bob"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 100
+
+[tool.coverage.html]
+directory = "build/cov-html/"
+
+
 [tool.pytest.ini_options]
-addopts = "--cov=src/bob --cov-report=term-missing"
+addopts = "--cov"
 minversion = 6.0
 required_plugins = "pytest-cov>=3.0.0"
 testpaths = [

@@ -1,3 +1,6 @@
+
+import bob
+
 def inc(x):
     return x + 1
 
