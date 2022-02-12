@@ -6,12 +6,12 @@ import logging
 import pathlib
 import typing
 
-from .api import BuildTarget
+from .api import BuildTarget, Command
 
 
 def depends_on() -> [str]:
     """Returns a list of task names this task depends on."""
-    return ["configure"]
+    return [Command.Configure]
 
 
 def bob_build(

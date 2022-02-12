@@ -11,7 +11,7 @@ def test_dependency():
     """
     result = depends_on()
 
-    assert result == ["configure"]
+    assert result == [bob.Command.Configure]
 
 
 def test_build_default_options():
