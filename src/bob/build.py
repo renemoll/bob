@@ -9,7 +9,7 @@ import typing
 from .api import BuildTarget, Command
 
 
-def depends_on() -> [str]:
+def depends_on() -> [Command]:
     """Returns a list of task names this task depends on."""
     return [Command.Configure]
 

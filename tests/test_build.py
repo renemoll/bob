@@ -1,20 +1,23 @@
+"""Tests specifically for the build command."""
 import pathlib
 
 import bob
 from bob.build import bob_build, depends_on
 
 
-def test_dependency():
-    """
-    Todo:
-        - replace the strings with Commands
-    """
+def test_dependency() -> None:
+    """Verify build's dependecies."""
     result = depends_on()
 
     assert result == [bob.Command.Configure]
 
 
-def test_build_default_options():
+def test_build_default_options() -> None:
+    """Verify the default options generate a valid build command.
+
+    Todo:
+    - Actually default the options?
+    """
     # 1. Prepare
     options = {
         "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Native},
@@ -30,8 +33,8 @@ def test_build_default_options():
     assert result[0] == ["cmake", "--build", "build/native-release"]
 
 
-def test_build_with_container_native():
-    """Given a build request with a native target, `use-container` has no impact."""
+def test_build_with_container_native() -> None:
+    """Verify `use-container` has no impact for a native target."""
     # 1. Prepare
     options = {
         "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Native},
@@ -47,7 +50,8 @@ def test_build_with_container_native():
     assert result[0] == ["cmake", "--build", "build/native-release"]
 
 
-def test_build_with_container_linux_clang():
+def test_build_with_container_linux_clang() -> None:
+    """Verify `use-container` triggers the use of a Linux container."""
     # 1. Prepare
     options = {
         "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Linux},
