@@ -48,7 +48,7 @@ def main() -> int:
     return os.EX_OK
 
 
-def _determine_command(arguments: typing.Dict[str, Args]) -> Command:
+def _determine_command(arguments: typing.Mapping[str, Args]) -> Command:
     """Returns a Command based on the given arguments."""
     if arguments["configure"]:
         return Command.Configure
@@ -59,7 +59,7 @@ def _determine_command(arguments: typing.Dict[str, Args]) -> Command:
 
 
 def _determine_options(
-    arguments: typing.Dict[str, Args]
+    arguments: typing.Mapping[str, Args]
 ) -> typing.Dict[str, typing.Any]:
     """Returns map with options based on the given arguments.
 
@@ -81,7 +81,7 @@ def _determine_options(
     }
 
 
-def _determine_build_config(arguments: typing.Dict[str, Args]) -> BuildConfig:
+def _determine_build_config(arguments: typing.Mapping[str, Args]) -> BuildConfig:
     """Returns a BuildConfig based on the given arguments."""
     if arguments["release"]:
         return BuildConfig.Release
@@ -92,7 +92,7 @@ def _determine_build_config(arguments: typing.Dict[str, Args]) -> BuildConfig:
     return BuildConfig.Release
 
 
-def _determine_build_target(arguments: typing.Dict[str, Args]) -> BuildTarget:
+def _determine_build_target(arguments: typing.Mapping[str, Args]) -> BuildTarget:
     """Returns a BuildTarget based on the given arguments."""
     return BuildTarget.Native
 

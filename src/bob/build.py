@@ -7,15 +7,16 @@ import pathlib
 import typing
 
 from .api import BuildTarget, Command
+from .typehints import OptionsType, OptionsMapType
 
 
-def depends_on() -> [Command]:
+def depends_on() -> typing.List[Command]:
     """Returns a list of task names this task depends on."""
     return [Command.Configure]
 
 
 def bob_build(
-    options: typing.Dict[str, str], cwd: pathlib.Path
+    options: OptionsMapType, cwd: pathlib.Path
 ) -> typing.List[typing.List[str]]:
     """Generate a set of commands to build the codebase.
 
@@ -50,7 +51,7 @@ def bob_build(
     ]
 
 
-def _determine_output_folder(options: typing.Dict[str, str]) -> str:
+def _determine_output_folder(options: typing.Mapping[str, OptionsType]) -> str:
     return f"{options['target']}-{options['config']}".lower()
 
 
@@ -88,6 +89,6 @@ def _generate_container_command(
     return []
 
 
-def _generate_build_project_command(output_folder: str) -> str:
+def _generate_build_project_command(output_folder: str) -> typing.List[str]:
     """Generate the build command."""
     return ["cmake", "--build", "build/{}".format(output_folder)]

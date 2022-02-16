@@ -14,8 +14,8 @@ Development
 
   ::
 
-    python -m venv .env
-    . .env/bin/activate
+    python -m venv .env_dev
+    . .env_dev/bin/activate
 
 2. Install locally:
 
@@ -33,13 +33,20 @@ Development
 Run the complete test-suite
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Install locally:
+1. Setup a virtual environment and activate it:
+
+  ::
+
+    python -m venv .env_tox
+    . .env_tox/bin/activate
+
+2. Install locally:
 
   ::
 
     pip install -e .[testing]
 
-2. Test:
+3. Test:
 
   ::
 

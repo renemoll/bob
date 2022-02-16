@@ -11,12 +11,10 @@ import time
 import types
 import typing
 
-# import sys
-
-
 from .api import Command
 from .build import bob_build, depends_on as build_depends
 from .configure import bob_configure, depends_on as configure_depends
+from .typehints import OptionsMapType
 
 # from .debug import bob_debug
 # from .format import bob_format
@@ -48,7 +46,7 @@ class ExecutionTimer(contextlib.AbstractContextManager):
         exc_type: typing.Optional[typing.Type[BaseException]],
         exc_value: typing.Optional[BaseException],
         exc_traceback: typing.Optional[types.TracebackType],
-    ) -> bool:
+    ) -> typing.Literal[False]:
         """Stop the timed context and calculate the elapsed time."""
         stop = time.perf_counter_ns()
         self.duration_ns = stop - self._start
@@ -57,7 +55,7 @@ class ExecutionTimer(contextlib.AbstractContextManager):
         return False
 
 
-def bob(command: Command, options: typing.Dict[str, str]) -> None:
+def bob(command: Command, options: OptionsMapType) -> None:
     """Executes a `bob` command.
 
     Args:

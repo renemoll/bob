@@ -1,6 +1,6 @@
-.env/
+.env*/
 .tox/
 __pycache__/
 *.egg-info/
 .coverage
-junit-*.xml
+build/
