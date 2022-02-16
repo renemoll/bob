@@ -3,7 +3,7 @@ name: TypeChecking
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  unit-test:
+  type-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

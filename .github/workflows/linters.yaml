@@ -3,7 +3,7 @@ name: Linters
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  unit-test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
