@@ -2,6 +2,13 @@
 Meet Bob
 ========
 
+.. image:: https://github.com/renemoll/bob/actions/workflows/unit-testing.yml/badge.svg
+   :target: https://github.com/renemoll/bob/actions/workflows/unit-testing.yml
+   :alt: Unit tests
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+   :alt: Coding style
+
 Bob is my collection of build tools. The goal is to provide a simple interface
 to build and test projects without having to remember or lookup various commands.
 

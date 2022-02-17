@@ -30,7 +30,15 @@ def test_cli_configure(mocker: pytest_mock.MockerFixture) -> None:
     # 3. Verify
     assert result == 0
     subprocess.run.assert_called_once_with(
-        ["cmake", "-B", "build/native-release", "-S", ".", "-DCMAKE_BUILD_TYPE=Release"]
+        [
+            "cmake",
+            "-B",
+            "build/native-release",
+            "-S",
+            ".",
+            "-DCMAKE_BUILD_TYPE=Release",
+        ],
+        check=True,
     )
 
 
@@ -56,9 +64,19 @@ def test_cli_build_default(mocker: pytest_mock.MockerFixture) -> None:
     # 3. Verify
     assert result == 0
     subprocess.run.assert_any_call(
-        ["cmake", "-B", "build/native-release", "-S", ".", "-DCMAKE_BUILD_TYPE=Release"]
+        [
+            "cmake",
+            "-B",
+            "build/native-release",
+            "-S",
+            ".",
+            "-DCMAKE_BUILD_TYPE=Release",
+        ],
+        check=True,
     )
-    subprocess.run.assert_any_call(["cmake", "--build", "build/native-release"])
+    subprocess.run.assert_any_call(
+        ["cmake", "--build", "build/native-release"], check=True
+    )
 
 
 def test_cli_build_release(mocker: pytest_mock.MockerFixture) -> None:
@@ -83,9 +101,19 @@ def test_cli_build_release(mocker: pytest_mock.MockerFixture) -> None:
     # 3. Verify
     assert result == 0
     subprocess.run.assert_any_call(
-        ["cmake", "-B", "build/native-release", "-S", ".", "-DCMAKE_BUILD_TYPE=Release"]
+        [
+            "cmake",
+            "-B",
+            "build/native-release",
+            "-S",
+            ".",
+            "-DCMAKE_BUILD_TYPE=Release",
+        ],
+        check=True,
     )
-    subprocess.run.assert_any_call(["cmake", "--build", "build/native-release"])
+    subprocess.run.assert_any_call(
+        ["cmake", "--build", "build/native-release"], check=True
+    )
 
 
 def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
@@ -114,5 +142,6 @@ def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
     # 3. Verify
     assert result == os.EX_SOFTWARE
     subprocess.run.assert_called_once_with(
-        ["cmake", "-B", "build/native-debug", "-S", ".", "-DCMAKE_BUILD_TYPE=Debug"]
+        ["cmake", "-B", "build/native-debug", "-S", ".", "-DCMAKE_BUILD_TYPE=Debug"],
+        check=True,
     )

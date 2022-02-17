@@ -83,11 +83,10 @@ def bob(command: Command, options: OptionsMapType) -> None:
         for cmd in cmd_list:
             logging.debug(" ".join(cmd))
             with ExecutionTimer() as timer:
-                result = subprocess.run(cmd)
+                result = subprocess.run(cmd, check=True)
             logging.debug(
                 "Result code: `%d` in %f seconds", result.returncode, timer.duration
             )
-            result.check_returncode()
 
 
 #     if command == Command.Debug:
