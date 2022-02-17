@@ -23,14 +23,13 @@ def test_bob_configure(mocker: pytest_mock.MockerFixture) -> None:
     }
 
     # 2. Execute
-    result = bob.bob(cmd, options)
+    bob.bob(cmd, options)
 
     # 3. Verify
     subprocess.run.assert_called_once_with(
         ["cmake", "-B", "build/native-debug", "-S", ".", "-DCMAKE_BUILD_TYPE=Debug"],
         check=True,
     )
-    assert result == None
 
 
 def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
@@ -52,7 +51,7 @@ def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
     }
 
     # 2. Execute
-    result = bob.bob(cmd, options)
+    bob.bob(cmd, options)
 
     # 3. Verify
     subprocess.run.assert_any_call(
@@ -69,4 +68,3 @@ def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
     subprocess.run.assert_any_call(
         ["cmake", "--build", "build/native-release"], check=True
     )
-    assert result == None

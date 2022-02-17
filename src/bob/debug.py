@@ -5,7 +5,7 @@ Contains the task and helpers to setup a debug environment.
 
 # def bob_debug(options, cwd):
 # 	"""
-# 	Todo:
+# 	To-do:
 # 	- actually enter gdb
 # 	- lldb?
 # 	- make container optional
