@@ -36,14 +36,13 @@ def main() -> int:
     )
 
     arguments = docopt.docopt(__doc__, version="Bob 0.1")
-    print(arguments)
     command = _determine_command(arguments)
     options = _determine_options(arguments)
 
     try:
         bob(command, options)
-    except subprocess.CalledProcessError as e:
-        print(e)
+    except subprocess.CalledProcessError as ex:
+        print(ex)
         return os.EX_SOFTWARE
     return os.EX_OK
 
@@ -75,7 +74,8 @@ def _determine_options(
     return {
         "build": {
             "config": _determine_build_config(arguments),
-            "target": _determine_build_target(arguments),
+            "target": _determine_build_target(),
+            # "target": _determine_build_target(arguments),
         },
         "use-container": True,
     }
@@ -85,14 +85,15 @@ def _determine_build_config(arguments: typing.Mapping[str, Args]) -> BuildConfig
     """Returns a BuildConfig based on the given arguments."""
     if arguments["release"]:
         return BuildConfig.Release
-    elif arguments["debug"]:
+    if arguments["debug"]:
         return BuildConfig.Debug
 
     logging.info("No build config selected, defaulting to release build config")
     return BuildConfig.Release
 
 
-def _determine_build_target(arguments: typing.Mapping[str, Args]) -> BuildTarget:
+# def _determine_build_target(arguments: typing.Mapping[str, Args]) -> BuildTarget:
+def _determine_build_target() -> BuildTarget:
     """Returns a BuildTarget based on the given arguments."""
     return BuildTarget.Native
 
