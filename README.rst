@@ -5,6 +5,9 @@ Meet Bob
 .. image:: https://github.com/renemoll/bob/actions/workflows/unit-testing.yml/badge.svg
    :target: https://github.com/renemoll/bob/actions/workflows/unit-testing.yml
    :alt: Unit tests
+.. image:: https://coveralls.io/repos/github/renemoll/bob/badge.svg?branch=main
+   :target: https://coveralls.io/github/renemoll/bob?branch=main
+   :alt: Test coverage
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
    :alt: Coding style

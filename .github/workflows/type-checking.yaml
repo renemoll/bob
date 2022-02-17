@@ -7,8 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Setup environment
+        uses: actions/setup-python@v2
         with:
           python-version: '3.8'
-      - run: pip install -e .[testing]
-      - run: tox -e mypy
+
+      - name: Install package
+        run: pip install -e .[testing]
+
+      - name: "Run type checker"
+        run: tox -e mypy
