@@ -62,15 +62,15 @@ def bob(command: Command, options: OptionsMapType) -> None:
         command: a command to execute
         options: a map of options to pass to the command
     """
-    logging.info(f"Execting command: {command}")
-    logging.debug(f"Options: {options}")
+    logging.info("Execting command: %s", command)
+    logging.debug("Options: %s", options)
 
     cwd = pathlib.Path.cwd()
-    logging.debug(f"Working directory: {cwd}")
+    logging.debug("Working directory: %s", cwd)
 
     tasks = _determine_dependent_tasks(command)
     tasks += [command]
-    logging.debug(f"Processing {len(tasks)} tasks ({tasks})")
+    logging.debug("Processing %d tasks (%s)", len(tasks), tasks)
 
     for task in tasks:
         if task == Command.Configure:
@@ -84,7 +84,7 @@ def bob(command: Command, options: OptionsMapType) -> None:
             with ExecutionTimer() as timer:
                 result = subprocess.run(cmd)
             logging.debug(
-                f"Result code: `{result.returncode}` in {timer.duration} seconds"
+                "Result code: `%d` in %f seconds", result.returncode, timer.duration
             )
             result.check_returncode()
 

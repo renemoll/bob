@@ -91,4 +91,4 @@ def _generate_container_command(
 
 def _generate_build_project_command(output_folder: str) -> typing.List[str]:
     """Generate the build command."""
-    return ["cmake", "--build", "build/{}".format(output_folder)]
+    return ["cmake", "--build", f"build/{output_folder}"]

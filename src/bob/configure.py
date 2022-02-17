@@ -99,10 +99,10 @@ def _generate_build_system_command(
     cmd = [
         "cmake",
         "-B",
-        "build/{}".format(output_folder),
+        f"build/{output_folder}",
         "-S",
         ".",
-        "-DCMAKE_BUILD_TYPE={}".format(str(options["build"]["config"])),
+        f"-DCMAKE_BUILD_TYPE={options['build']['config']}",
     ]
 
     # if options['build']['target'] in (BuildTarget.Linux, BuildTarget.Stm32):
