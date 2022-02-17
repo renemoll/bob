@@ -30,11 +30,12 @@ class ExecutionTimer(contextlib.AbstractContextManager):
         duration_ms (float): elapsed time in miliseconds.
     """
 
-    # def __init__(self: "ExecutionTimer") -> None:
-    #     self._start = None
-    #     self.duration = None
-    #     self.duration_ms = None
-    #     self.duration_ns = None
+    def __init__(self: "ExecutionTimer") -> None:
+        """High resolution timer to capture the execution time of a block."""
+        self._start = 0
+        self.duration = 0.0
+        self.duration_ms = 0.0
+        self.duration_ns = 0
 
     def __enter__(self: "ExecutionTimer") -> "ExecutionTimer":
         """Start the timed context by recording the current time."""
