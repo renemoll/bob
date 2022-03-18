@@ -11,6 +11,7 @@ source = ["src", "*/site-packages"]
 [tool.coverage.run]
 branch = true
 source = ["bob"]
+omit = ["src/bob/compat.py"]
 
 [tool.coverage.report]
 show_missing = true

@@ -14,7 +14,6 @@ Options:
     --version        Show version.
 """
 import logging
-import os
 import subprocess
 import typing
 
@@ -22,6 +21,7 @@ import docopt
 
 from .api import BuildConfig, BuildTarget, Command
 from .bob import bob
+from .compat import EX_OK, EX_SOFTWARE
 
 
 Args = typing.TypeVar("Args", None, bool, str)
@@ -43,8 +43,8 @@ def main() -> int:
         bob(command, options)
     except subprocess.CalledProcessError as ex:
         print(ex)
-        return os.EX_SOFTWARE
-    return os.EX_OK
+        return EX_SOFTWARE
+    return EX_OK
 
 
 def _determine_command(arguments: typing.Mapping[str, Args]) -> Command:
