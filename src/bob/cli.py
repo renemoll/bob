@@ -1,13 +1,14 @@
 """The builder, Bob the builder.
 
 Usage:
-    bob.py configure
+    bob.py configure [<target>] [(debug|release)]
     bob.py build [<target>] [(debug|release)]
     bob.py -h | --help
     bob.py --version
 
 Possible commands:
-    build: build the project for the a target.
+    build:     build the project for the a target.
+    configure: prepare the project for the first build, automatically executed with build.
 
 Options:
     -h --help        Show this screen.
@@ -74,8 +75,7 @@ def _determine_options(
     return {
         "build": {
             "config": _determine_build_config(arguments),
-            "target": _determine_build_target(),
-            # "target": _determine_build_target(arguments),
+            "target": _determine_build_target(arguments),
         },
         "use-container": True,
     }
@@ -92,10 +92,15 @@ def _determine_build_config(arguments: typing.Mapping[str, Args]) -> BuildConfig
     return BuildConfig.Release
 
 
-# def _determine_build_target(arguments: typing.Mapping[str, Args]) -> BuildTarget:
-def _determine_build_target() -> BuildTarget:
+def _determine_build_target(arguments: typing.Mapping[str, Args]) -> BuildTarget:
     """Returns a BuildTarget based on the given arguments."""
-    return BuildTarget.Native
+    try:
+        target = arguments['<target>'].lower()
+        # if target == 'linux':
+        return BuildTarget.Linux
+    except AttributeError:
+        logging.info("No build target selected, defaulting to native build config")
+        return BuildTarget.Native
 
     # try:
     # 	target = args['<target>'].lower()
