@@ -6,9 +6,9 @@ import enum
 class Command(enum.Enum):
     """Command represents an action to perform on the codebase."""
 
-    # bootstrap
-    Configure = 1
-    Build = 2
+    Bootstrap = 1
+    Configure = 2
+    Build = 3
     # Test = 3
     # 	Debug
     # 	Format

@@ -1,6 +1,7 @@
 """The builder, Bob the builder.
 
 Usage:
+    bob.py bootstrap
     bob.py configure [<target>] [(debug|release)]
     bob.py build [<target>] [(debug|release)]
     bob.py -h | --help
@@ -50,6 +51,8 @@ def main() -> int:
 
 def _determine_command(arguments: typing.Mapping[str, Args]) -> Command:
     """Returns a Command based on the given arguments."""
+    if arguments["bootstrap"]:
+        return Command.Bootstrap
     if arguments["configure"]:
         return Command.Configure
     # elif arguments["build"]:

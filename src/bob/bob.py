@@ -12,6 +12,7 @@ import types
 import typing
 
 from .api import Command
+from .bootstrap import bob_bootstrap, depends_on as bootstrap_depends
 from .build import bob_build, depends_on as build_depends
 from .configure import bob_configure, depends_on as configure_depends
 from .typehints import OptionsMapType
@@ -74,6 +75,8 @@ def bob(command: Command, options: OptionsMapType) -> None:
     logging.debug("Processing %d tasks (%s)", len(tasks), tasks)
 
     for task in tasks:
+        if task == Command.Bootstrap:
+            cmd_list = bob_bootstrap(options, cwd)
         if task == Command.Configure:
             cmd_list = bob_configure(options, cwd)
         # elif task == Command.Build:
@@ -110,6 +113,8 @@ def _determine_dependent_tasks(command: Command) -> typing.List[Command]:
 
 
 def _get_dependent_tasks(command: Command) -> typing.List[Command]:
+    if command == Command.Bootstrap:
+        return bootstrap_depends()
     if command == Command.Build:
         return build_depends()
 

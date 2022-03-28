@@ -9,6 +9,40 @@ import pytest_mock
 from bob.cli import main
 
 
+def test_cli_bootstrap(mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path) -> None:
+    """Verify the CLI performs a plain bootstrap operation."""
+    # 1. Prepare
+    mocker.patch("subprocess.run")
+    mocker.patch("docopt.docopt")
+
+    docopt.docopt.return_value = {
+        "--help": False,
+        "--version": False,
+        "<target>": None,
+        "bootstrap": True,
+        "build": False,
+        "configure": False,
+        "debug": False,
+        "release": False,
+    }
+
+    work = tmp_path / "work"
+    work.mkdir()
+    os.chdir(str(work))
+
+    # 2. Execute
+    result = main()
+
+    # 3. Verify
+    assert result == 0
+    cmake = work / "cmake"
+    assert cmake.is_dir()
+    cmake_file = cmake / "FindBob.cmake"
+    assert cmake_file.is_file()
+    ref = pathlib.Path(__file__).parent.resolve() / "ref" / "bootstrap.cmake"
+    assert cmake_file.read_text().strip() == ref.read_text().strip()
+
+
 def test_cli_configure_default(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
@@ -19,6 +53,7 @@ def test_cli_configure_default(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": None,
+        "bootstrap": False,
         "build": False,
         "configure": True,
         "debug": False,
@@ -53,6 +88,7 @@ def test_cli_configure_release(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": None,
+        "bootstrap": False,
         "build": False,
         "configure": True,
         "debug": False,
@@ -87,6 +123,7 @@ def test_cli_configure_debug(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": None,
+        "bootstrap": False,
         "build": False,
         "configure": True,
         "debug": True,
@@ -121,6 +158,7 @@ def test_cli_configure_linux_default(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": "linux",
+        "bootstrap": False,
         "build": False,
         "configure": True,
         "debug": False,
@@ -164,6 +202,7 @@ def test_cli_configure_linux_release(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": "linux",
+        "bootstrap": False,
         "build": False,
         "configure": True,
         "debug": False,
@@ -207,6 +246,7 @@ def test_cli_configure_linux_debug(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": "linux",
+        "bootstrap": False,
         "build": False,
         "configure": True,
         "debug": True,
@@ -250,6 +290,7 @@ def test_cli_build_default(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": None,
+        "bootstrap": False,
         "build": True,
         "configure": False,
         "debug": False,
@@ -287,6 +328,7 @@ def test_cli_build_release(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": None,
+        "bootstrap": False,
         "build": True,
         "configure": False,
         "debug": False,
@@ -324,6 +366,7 @@ def test_cli_build_debug(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": None,
+        "bootstrap": False,
         "build": True,
         "configure": False,
         "debug": True,
@@ -361,6 +404,7 @@ def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": "linux",
+        "bootstrap": False,
         "build": True,
         "configure": False,
         "debug": False,
@@ -418,6 +462,7 @@ def test_cli_build_linux_release(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": "linux",
+        "bootstrap": False,
         "build": True,
         "configure": False,
         "debug": False,
@@ -476,6 +521,7 @@ def test_cli_build_linux_debug(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": "linux",
+        "bootstrap": False,
         "build": True,
         "configure": False,
         "debug": True,
@@ -533,6 +579,7 @@ def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
         "--help": False,
         "--version": False,
         "<target>": None,
+        "bootstrap": False,
         "build": True,
         "configure": False,
         "debug": True,
