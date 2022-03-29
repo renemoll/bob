@@ -118,15 +118,5 @@ def _determine_build_target(arguments: typing.Mapping[str, Args]) -> BuildTarget
 
         raise ValueError(f"Invalid target specified: '{target}'")
     except AttributeError:
-        logging.info("No build target selected, defaulting to native build config")
+        logging.info("No build target selected, defaulting to native build target")
         return BuildTarget.Native
-
-    # try:
-    # 	target = args['<target>'].lower()
-    # 	if target == 'stm32':
-    # 		return BuildTarget.Stm32
-    # 	elif target == 'linux':
-    # 		return BuildTarget.Linux
-    # 	return BuildTarget.Native
-    # except:
-    # 	logging.warning("No build target selected, defaulting to native")
