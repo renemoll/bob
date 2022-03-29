@@ -18,6 +18,7 @@ def depends_on() -> typing.List[Command]:
 def bob_bootstrap(
     options: OptionsMapType, cwd: pathlib.Path
 ) -> typing.List[typing.List[str]]:
+    # pylint: disable=unused-argument
     """Generate a set of commands to prepare the codebase for building.
 
     Args:
@@ -35,19 +36,9 @@ def bob_bootstrap(
     """
     output_folder = cwd / "cmake"
     logging.debug("Determined output folder: %s", output_folder)
+    base_file = pathlib.Path(__file__).parent.resolve() / "templates" / "FindBob.cmake"
 
-    output_folder.mkdir(parents=True, exist_ok=False)
-
-    output_file = output_folder / "FindBob.cmake"
-    output_file.write_text("""
-include(FetchContent)
-
-FetchContent_Declare(
-  bob-cmake
-  GIT_REPOSITORY https://github.com/renemoll/bob-cmake.git
-  GIT_TAG        origin/main
-  GIT_SHALLOW    true
-)
-
-FetchContent_MakeAvailable(bob-cmake)
-""")
+    return [
+        ["cmake", "-E", "make_directory", str(output_folder)],
+        ["cmake", "-E", "copy", str(base_file), str(output_folder)],
+    ]

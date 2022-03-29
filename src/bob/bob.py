@@ -77,7 +77,7 @@ def bob(command: Command, options: OptionsMapType) -> None:
     for task in tasks:
         if task == Command.Bootstrap:
             cmd_list = bob_bootstrap(options, cwd)
-        if task == Command.Configure:
+        elif task == Command.Configure:
             cmd_list = bob_configure(options, cwd)
         # elif task == Command.Build:
         else:
@@ -90,15 +90,6 @@ def bob(command: Command, options: OptionsMapType) -> None:
             logging.debug(
                 "Result code: `%d` in %f seconds", result.returncode, timer.duration
             )
-
-
-#     if command == Command.Debug:
-#         tasks += bob_debug(options, cwd)
-#     if command == Command.Test:
-#         tasks += bob_test(options)
-#     if command == Command.Format:
-#         tasks += bob_format(options, cwd)
-#
 
 
 def _determine_dependent_tasks(command: Command) -> typing.List[Command]:

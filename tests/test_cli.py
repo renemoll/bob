@@ -9,10 +9,11 @@ import pytest_mock
 from bob.cli import main
 
 
-def test_cli_bootstrap(mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path) -> None:
+def test_cli_bootstrap(
+    mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path
+) -> None:
     """Verify the CLI performs a plain bootstrap operation."""
     # 1. Prepare
-    mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
 
     docopt.docopt.return_value = {
@@ -186,7 +187,7 @@ def test_cli_configure_linux_default(mocker: pytest_mock.MockerFixture) -> None:
             ".",
             "-DCMAKE_BUILD_TYPE=Release",
             "-G",
-            "Ninja"
+            "Ninja",
         ],
         check=True,
     )
@@ -230,7 +231,7 @@ def test_cli_configure_linux_release(mocker: pytest_mock.MockerFixture) -> None:
             ".",
             "-DCMAKE_BUILD_TYPE=Release",
             "-G",
-            "Ninja"
+            "Ninja",
         ],
         check=True,
     )
@@ -274,10 +275,35 @@ def test_cli_configure_linux_debug(mocker: pytest_mock.MockerFixture) -> None:
             ".",
             "-DCMAKE_BUILD_TYPE=Debug",
             "-G",
-            "Ninja"
+            "Ninja",
         ],
         check=True,
     )
+
+
+def test_cli_configure_invalid_target(mocker: pytest_mock.MockerFixture) -> None:
+    """Verify the CLI performs the correct argument conversion for a configure."""
+    # 1. Prepare
+    mocker.patch("subprocess.run")
+    mocker.patch("docopt.docopt")
+
+    docopt.docopt.return_value = {
+        "--help": False,
+        "--version": False,
+        "<target>": "dummy",
+        "bootstrap": False,
+        "build": False,
+        "configure": True,
+        "debug": True,
+        "release": False,
+    }
+
+    # 2. Execute
+    result = main()
+
+    # 3. Verify
+    assert result == 65
+    subprocess.run.assert_not_called()
 
 
 def test_cli_build_default(mocker: pytest_mock.MockerFixture) -> None:
@@ -432,7 +458,7 @@ def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
             ".",
             "-DCMAKE_BUILD_TYPE=Release",
             "-G",
-            "Ninja"
+            "Ninja",
         ],
         check=True,
     )
@@ -446,9 +472,9 @@ def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
             "renemoll/builder_clang",
             "cmake",
             "--build",
-            "build/linux-release"
+            "build/linux-release",
         ],
-        check=True
+        check=True,
     )
 
 
@@ -490,8 +516,7 @@ def test_cli_build_linux_release(mocker: pytest_mock.MockerFixture) -> None:
             ".",
             "-DCMAKE_BUILD_TYPE=Release",
             "-G",
-            "Ninja"
-
+            "Ninja",
         ],
         check=True,
     )
@@ -505,9 +530,9 @@ def test_cli_build_linux_release(mocker: pytest_mock.MockerFixture) -> None:
             "renemoll/builder_clang",
             "cmake",
             "--build",
-            "build/linux-release"
+            "build/linux-release",
         ],
-        check=True
+        check=True,
     )
 
 
@@ -549,7 +574,7 @@ def test_cli_build_linux_debug(mocker: pytest_mock.MockerFixture) -> None:
             ".",
             "-DCMAKE_BUILD_TYPE=Debug",
             "-G",
-            "Ninja"
+            "Ninja",
         ],
         check=True,
     )
@@ -563,9 +588,9 @@ def test_cli_build_linux_debug(mocker: pytest_mock.MockerFixture) -> None:
             "renemoll/builder_clang",
             "cmake",
             "--build",
-            "build/linux-debug"
+            "build/linux-debug",
         ],
-        check=True
+        check=True,
     )
 
 
