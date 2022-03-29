@@ -26,7 +26,7 @@ from .bob import bob
 from .compat import EX_DATAERR, EX_OK, EX_SOFTWARE
 
 
-Args = typing.TypeVar("Args", None, bool, str)
+ArgsT = typing.TypeVar("ArgsT", None, bool, str)
 
 
 def main() -> int:
@@ -53,7 +53,7 @@ def main() -> int:
     return EX_OK
 
 
-def _determine_command(arguments: typing.Mapping[str, Args]) -> Command:
+def _determine_command(arguments: typing.Mapping[str, ArgsT]) -> Command:
     """Returns a Command based on the given arguments."""
     if arguments["bootstrap"]:
         return Command.Bootstrap
@@ -66,7 +66,7 @@ def _determine_command(arguments: typing.Mapping[str, Args]) -> Command:
 
 
 def _determine_options(
-    arguments: typing.Mapping[str, Args]
+    arguments: typing.Mapping[str, ArgsT]
 ) -> typing.Dict[str, typing.Any]:
     """Returns map with options based on the given arguments.
 
@@ -88,7 +88,7 @@ def _determine_options(
     }
 
 
-def _determine_build_config(arguments: typing.Mapping[str, Args]) -> BuildConfig:
+def _determine_build_config(arguments: typing.Mapping[str, ArgsT]) -> BuildConfig:
     """Returns a BuildConfig based on the given arguments."""
     if arguments["release"]:
         return BuildConfig.Release
@@ -99,7 +99,7 @@ def _determine_build_config(arguments: typing.Mapping[str, Args]) -> BuildConfig
     return BuildConfig.Release
 
 
-def _determine_build_target(arguments: typing.Mapping[str, Args]) -> BuildTarget:
+def _determine_build_target(arguments: typing.Mapping[str, ArgsT]) -> BuildTarget:
     """Parse the arguments to determine the BuildTarget.
 
     Args:
