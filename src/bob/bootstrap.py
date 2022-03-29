@@ -7,7 +7,7 @@ import pathlib
 import typing
 
 from .api import Command
-from .typehints import OptionsMapType
+from .typehints import OptionsMapT
 
 
 def depends_on() -> typing.List[Command]:
@@ -16,7 +16,7 @@ def depends_on() -> typing.List[Command]:
 
 
 def bob_bootstrap(
-    options: OptionsMapType, cwd: pathlib.Path
+    options: OptionsMapT, cwd: pathlib.Path
 ) -> typing.List[typing.List[str]]:
     # pylint: disable=unused-argument
     """Generate a set of commands to prepare the codebase for building.

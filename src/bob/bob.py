@@ -15,7 +15,7 @@ from .api import Command
 from .bootstrap import bob_bootstrap, depends_on as bootstrap_depends
 from .build import bob_build, depends_on as build_depends
 from .configure import bob_configure, depends_on as configure_depends
-from .typehints import OptionsMapType
+from .typehints import OptionsMapT
 
 # from .debug import bob_debug
 # from .format import bob_format
@@ -57,7 +57,7 @@ class ExecutionTimer(contextlib.AbstractContextManager):
         return False
 
 
-def bob(command: Command, options: OptionsMapType) -> None:
+def bob(command: Command, options: OptionsMapT) -> None:
     """Executes a `bob` command.
 
     Args:

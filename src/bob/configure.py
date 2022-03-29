@@ -8,7 +8,7 @@ import typing
 
 from .api import BuildTarget, Command
 from .common import determine_output_folder, generate_container_command
-from .typehints import OptionsMapType
+from .typehints import OptionsMapT
 
 
 def depends_on() -> typing.List[Command]:
@@ -17,7 +17,7 @@ def depends_on() -> typing.List[Command]:
 
 
 def bob_configure(
-    options: OptionsMapType, cwd: pathlib.Path
+    options: OptionsMapT, cwd: pathlib.Path
 ) -> typing.List[typing.List[str]]:
     """Generate a set of commands to configure the build.
 
@@ -54,7 +54,7 @@ def bob_configure(
 
 
 def _generate_build_system_command(
-    options: OptionsMapType, output_folder: str
+    options: OptionsMapT, output_folder: str
 ) -> typing.List[str]:
     """Generate the build configuration command."""
     cmd = [

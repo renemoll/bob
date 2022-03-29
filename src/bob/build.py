@@ -8,7 +8,7 @@ import typing
 
 from .api import Command
 from .common import determine_output_folder, generate_container_command
-from .typehints import OptionsMapType
+from .typehints import OptionsMapT
 
 
 def depends_on() -> typing.List[Command]:
@@ -16,9 +16,7 @@ def depends_on() -> typing.List[Command]:
     return [Command.Configure]
 
 
-def bob_build(
-    options: OptionsMapType, cwd: pathlib.Path
-) -> typing.List[typing.List[str]]:
+def bob_build(options: OptionsMapT, cwd: pathlib.Path) -> typing.List[typing.List[str]]:
     """Generate a set of commands to build the codebase.
 
     Args:
