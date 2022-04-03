@@ -16,10 +16,12 @@ Options:
     --version        Show version.
 """
 import logging
+import pathlib
 import subprocess
 import typing
 
 import docopt
+import toml
 
 from .api import BuildConfig, BuildTarget, Command
 from .bob import bob
@@ -79,13 +81,26 @@ def _determine_options(
     Todo:
         - update return type annotation.
     """
-    return {
+    options = {}
+
+    cwd = pathlib.Path.cwd()
+    toml_file = cwd / "bob.toml"
+    try:
+        file_options = toml.load(toml_file)
+        logging.debug("Loading settings: %s", toml_file)
+        options.update(file_options)
+    except FileNotFoundError:
+        pass
+
+    user_options = {
         "build": {
             "config": _determine_build_config(arguments),
             "target": _determine_build_target(arguments),
         },
         "use-container": True,
     }
+    options.update(user_options)
+    return options
 
 
 def _determine_build_config(arguments: typing.Mapping[str, ArgsT]) -> BuildConfig:

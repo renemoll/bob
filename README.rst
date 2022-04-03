@@ -24,6 +24,11 @@ How to use
 
   bob build
 
+Requirements
+============
+
+ * Python 3.8+
+ * git
 
 Development
 ===========
