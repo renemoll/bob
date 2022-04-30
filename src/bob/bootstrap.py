@@ -41,13 +41,26 @@ def bob_bootstrap(
 
     if "external" in options:
         external_folder = cwd / options["external"]["destination_folder"]
+        logging.debug("Ensure external folder: %s", external_folder)
         external_folder.mkdir(parents=True, exist_ok=True)
 
         for field in options["external"]:
             try:
+                logging.info("Retrieving external dependecy: %s", field)
                 ext = options["external"][field]
+
+                try:
+                    git_options = ext["options"]
+                except TypeError:
+                    continue
+                except KeyError:
+                    git_options = None
+
                 git.Repo.clone_from(
-                    ext["repository"], str(external_folder / field), branch=ext["tag"]
+                    url=ext["repository"],
+                    to_path=str(external_folder / field),
+                    branch=ext["tag"],
+                    multi_options=git_options,
                 )
             except TypeError:
                 pass
