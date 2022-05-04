@@ -140,6 +140,8 @@ def _determine_build_target(arguments: typing.Mapping[str, ArgsT]) -> BuildTarge
         target = arguments["<target>"].lower()  # type: ignore
         if target == "linux":
             return BuildTarget.Linux
+        if target == "stm32":
+            return BuildTarget.Stm32
 
         raise ValueError(f"Invalid target specified: '{target}'")
     except AttributeError:

@@ -43,8 +43,8 @@ def bob_configure(
 
         steps += _generate_build_system_command(options, output_folder)
 
-        # if options['build']['target'] == BuildTarget.Stm32:
-        # steps += build_stm32()
+        if options["build"]["target"] == BuildTarget.Stm32:
+            steps += options["configure"]["stm32"]["options"]
 
         return steps
 
@@ -66,15 +66,10 @@ def _generate_build_system_command(
         f"-DCMAKE_BUILD_TYPE={options['build']['config']}",
     ]
 
-    # if options['build']['target'] in (BuildTarget.Linux, BuildTarget.Stm32):
-    if options["build"]["target"] == BuildTarget.Linux:
+    if options["build"]["target"] in (BuildTarget.Linux, BuildTarget.Stm32):
         cmd += [
             "-G",
             "Ninja",
         ]
 
     return cmd
-
-
-# def build_stm32():
-# return ["-DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-stm32f767.cmake"]

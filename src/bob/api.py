@@ -40,7 +40,7 @@ class BuildTarget(enum.Enum):
 
     Native = 1
     Linux = 2
-    # 	Stm32 = 3
+    Stm32 = 3
 
     def __str__(self: "BuildTarget") -> str:
         """String conversion."""

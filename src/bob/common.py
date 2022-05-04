@@ -25,13 +25,8 @@ def generate_container_command(
 
     Todo:
         - targets may have more compilers
+        - use containers from TOML file
     """
-    # 	elif target == BuildTarget.Stm32:
-    # 		return ["docker",
-    # 			"run",
-    # 			"--rm",
-    # 			"-v", "{}:/work/".format(cwd),
-    # 			"renemoll/builder_arm_gcc"]
     if target == BuildTarget.Linux:
         return [
             "docker",
@@ -40,6 +35,15 @@ def generate_container_command(
             "-v",
             f"{cwd}:/work/",
             "renemoll/builder_clang",
+        ]
+    if target == BuildTarget.Stm32:
+        return [
+            "docker",
+            "run",
+            "--rm",
+            "-v",
+            f"{cwd}:/work/",
+            "renemoll/builder_arm_gcc",
         ]
 
     return []
