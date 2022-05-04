@@ -18,6 +18,7 @@ Options:
 import logging
 import pathlib
 import subprocess
+import sys
 import typing
 
 import docopt
@@ -52,6 +53,7 @@ def main() -> int:
     except subprocess.CalledProcessError as ex:
         print(ex)
         return EX_SOFTWARE
+
     return EX_OK
 
 
@@ -78,6 +80,9 @@ def _determine_options(
     Returns:
         A map representing the options for each step.
 
+    Raises:
+        ValueError: upon errors parsing a `bob.toml` file.
+
     Todo:
         - update return type annotation.
     """
@@ -85,12 +90,17 @@ def _determine_options(
 
     cwd = pathlib.Path.cwd()
     toml_file = cwd / "bob.toml"
+
     try:
         file_options = toml.load(toml_file)
         logging.debug("Loading settings: %s", toml_file)
         options.update(file_options)
     except FileNotFoundError:
         pass
+    except Exception as ex:
+        print(f"Error parsing `{toml_file}`")
+        print(f"{sys.exc_info()[0].__name__}: {sys.exc_info()[1]}")
+        raise ValueError from ex
 
     user_options = {
         "build": {
