@@ -13,7 +13,7 @@ jobs:
           python-version: '3.8'
 
       - name: Install package
-        run: pip install -e .[testing]
+        run: pip install -e .[tox]
 
       - name: "Run type checker"
         run: tox -e mypy

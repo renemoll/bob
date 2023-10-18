@@ -13,7 +13,7 @@ jobs:
           python-version: '3.8'
 
       - name: Install package
-        run: pip install -e .[testing]
+        run: pip install -e .[tox]
 
       - name: "Execute unit-tests"
         run: tox -e py38

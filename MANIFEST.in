@@ -1,2 +1,2 @@
 global-exclude __pycache__ *.py[cod]
-graft src/bob/templates/
+graft bob/templates/

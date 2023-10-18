@@ -37,14 +37,14 @@ Development
 
 .. code-block:: bash
 
-   python -m venv .env_dev
+   python3 -m venv .env_dev
    . .env_dev/bin/activate
 
 2. Install locally:
 
 .. code-block:: bash
 
-   pip install -e .[develop]
+   pip install --editable .[dev]
 
 3. Test:
 
@@ -67,7 +67,7 @@ Run the complete test-suite
 
 .. code-block:: bash
 
-   pip install -e .[testing]
+   pip install -e .[tox]
 
 3. Test:
 
