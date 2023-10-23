@@ -6,7 +6,6 @@ import tempfile
 
 import docopt
 import pytest_mock
-import toml
 
 from bob.cli import main
 
@@ -627,6 +626,7 @@ def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
         check=True,
     )
 
+import shutil
 
 def test_cli_read_toml_file(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI reads and utilizes an options TOML file."""
@@ -650,13 +650,44 @@ def test_cli_read_toml_file(mocker: pytest_mock.MockerFixture) -> None:
         work.mkdir()
         os.chdir(str(work))
 
-        toml_file = work / "bob.toml"
-        toml_file.write_text(
-            toml.dumps({"external": {"destination_folder": "external"}})
-        )
+        toml_file = pathlib.Path(__file__).parent.resolve() / "config" / "bob.toml"
+        shutil.copy(toml_file, work / "bob.toml")
 
         # 2. Execute
         main()
 
         # 3. Verify
         assert (work / "external").is_dir()
+
+
+def test_cli_error_invalid_toml_file(mocker: pytest_mock.MockerFixture) -> None:
+    """Verify the CLI reads and utilizes an options TOML file."""
+    # 1. Prepare
+    mocker.patch("docopt.docopt")
+
+    docopt.docopt.return_value = {
+        "--help": False,
+        "--version": False,
+        "<target>": None,
+        "bootstrap": True,
+        "build": False,
+        "configure": False,
+        "debug": False,
+        "release": False,
+    }
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = pathlib.Path(tmp_dir)
+        work = tmp_path / "work"
+        work.mkdir()
+        os.chdir(str(work))
+
+        toml_file = pathlib.Path(__file__).parent.resolve() / "config" / "invalid.toml"
+        shutil.copy(toml_file, work / "bob.toml")
+
+        # 2. Execute
+        main()
+
+        # 3. Verify
+        assert not (work / "external").is_dir()
+

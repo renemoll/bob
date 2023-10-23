@@ -67,7 +67,7 @@ Run the complete test-suite
 
 .. code-block:: bash
 
-   pip install -e .[tox]
+   pip install --editable .[tox]
 
 3. Test:
 

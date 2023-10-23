@@ -33,8 +33,8 @@ def test_bob_configure(mocker: pytest_mock.MockerFixture) -> None:
 
 
 def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
-    """Verify the build command produces a configure and build command call."""
-    """
+    """Verify the build command produces a configure and build command call.
+
     Todo:
     * Improve by enforcing call order. However, I do not want to assert every in between call.
     """

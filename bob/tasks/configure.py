@@ -3,12 +3,11 @@
 Contains the task and helpers to configure a build.
 """
 import logging
-import pathlib
 import typing
 
-from .api import BuildTarget, Command
-from .common import determine_output_folder, generate_container_command
-from .typehints import OptionsMapT
+from ..api import BuildTarget, Command
+from ..common import determine_output_folder, generate_container_command
+from ..typehints import OptionsMapT
 
 
 def depends_on() -> typing.List[Command]:
@@ -16,41 +15,43 @@ def depends_on() -> typing.List[Command]:
     return []
 
 
-def bob_configure(
-    options: OptionsMapT, cwd: pathlib.Path
-) -> typing.List[typing.List[str]]:
-    """Generate a set of commands to configure the build.
+def parse_env(env, options):
+    return env
+
+
+def parse_options(options):
+    return options
+
+
+def generate_commands(options, env) -> typing.List[typing.List[str]]:
+    """Generate a set of configure the build.
 
     Args:
-        options: set of build options to take into account.
-        cwd: the location of the codebase.
+        options: set of options to take into account.
+        env: a map with relevant locations in the codebase.
 
     Returns:
         A list of commands, each command is a list of strings which can be
         passed to `subprocess.run`.
 
     Todo:
-        - rename cwd
+        - split target and compiler (should be a matrix [target vs compiler])
     """
     output_folder = determine_output_folder(options["build"])
     logging.debug("Determined output folder: %s", output_folder)
 
-    def generate_build_env() -> typing.List[str]:
-        steps = []
+    steps = []
+    if options["use-container"]:
+        steps += generate_container_command(
+            options["build"]["target"], env["root_path"]
+        )
 
-        if options["use-container"]:
-            steps += generate_container_command(options["build"]["target"], cwd)
+    steps += _generate_build_system_command(options, output_folder)
 
-        steps += _generate_build_system_command(options, output_folder)
+    # if options["build"]["target"] == BuildTarget.Stm32:
+    #     steps += options["configure"]["stm32"]["options"]
 
-        if options["build"]["target"] == BuildTarget.Stm32:
-            steps += options["configure"]["stm32"]["options"]
-
-        return steps
-
-    return [
-        generate_build_env(),
-    ]
+    return [steps]
 
 
 def _generate_build_system_command(

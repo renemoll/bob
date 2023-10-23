@@ -40,7 +40,7 @@ def main() -> int:
         datefmt="%Y.%m.%d %H:%M:%S",
     )
 
-    arguments = docopt.docopt(__doc__, version="Bob 0.1")
+    arguments = docopt.docopt(__doc__, version="Bob 2023.10.0")
     try:
         command = _determine_command(arguments)
         options = _determine_options(arguments)
@@ -140,8 +140,8 @@ def _determine_build_target(arguments: typing.Mapping[str, ArgsT]) -> BuildTarge
         target = arguments["<target>"].lower()  # type: ignore
         if target == "linux":
             return BuildTarget.Linux
-        if target == "stm32":
-            return BuildTarget.Stm32
+        # if target == "stm32":
+            # return BuildTarget.Stm32
 
         raise ValueError(f"Invalid target specified: '{target}'")
     except AttributeError:

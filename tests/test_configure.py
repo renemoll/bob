@@ -2,7 +2,7 @@
 import pathlib
 
 import bob
-from bob.configure import bob_configure, depends_on
+from bob.tasks.configure import depends_on, generate_commands
 
 
 def test_dependency() -> None:
@@ -12,7 +12,7 @@ def test_dependency() -> None:
     assert result == []
 
 
-def test_configure_default_options() -> None:
+def test_configure_default_options(tmp_path: pathlib.Path) -> None:
     """Verify the default options generate a valid configure command.
 
     Todo:
@@ -23,10 +23,10 @@ def test_configure_default_options() -> None:
         "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Native},
         "use-container": False,
     }
-    cwd = ""
+    env = {"root_path": tmp_path}
 
     # 2. Execute
-    result = bob_configure(options, cwd)
+    result = generate_commands(options, env)
 
     # 3. Verify
     assert len(result) == 1
@@ -40,17 +40,17 @@ def test_configure_default_options() -> None:
     ]
 
 
-def test_configure_with_container_native() -> None:
+def test_configure_with_container_native(tmp_path: pathlib.Path) -> None:
     """Given a build request with a native target, `use-container` has no impact."""
     # 1. Prepare
     options = {
         "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Native},
         "use-container": True,
     }
-    cwd = pathlib.Path("/some/path/to/my/code")
+    env = {"root_path": tmp_path}
 
     # 2. Execute
-    result = bob_configure(options, cwd)
+    result = generate_commands(options, env)
 
     # 3. Verify
     assert len(result) == 1
@@ -64,17 +64,17 @@ def test_configure_with_container_native() -> None:
     ]
 
 
-def test_configure_with_container_linux_clang() -> None:
+def test_configure_with_container_linux_clang(tmp_path: pathlib.Path) -> None:
     """Verify `use-container` triggers the use of a Linux container."""
     # 1. Prepare
     options = {
         "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Linux},
         "use-container": True,
     }
-    cwd = pathlib.Path("/some/path/to/my/code")
+    env = {"root_path": tmp_path}
 
     # 2. Execute
-    result = bob_configure(options, cwd)
+    result = generate_commands(options, env)
 
     # 3. Verify
     assert len(result) == 1
@@ -83,7 +83,7 @@ def test_configure_with_container_linux_clang() -> None:
         "run",
         "--rm",
         "-v",
-        f"{cwd}:/work/",
+        f"{env['root_path']}:/work/",
         "renemoll/builder_clang",
         "cmake",
         "-B",

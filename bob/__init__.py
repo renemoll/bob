@@ -3,4 +3,4 @@
 from .api import BuildConfig, BuildTarget, Command
 from .bob import bob
 
-__version__ = "0.1.0"
+__version__ = "2023.10.0"

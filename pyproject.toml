@@ -25,7 +25,6 @@ classifiers = [
 ]
 dependencies = [
     "docopt",
-    "GitPython",
     "toml",
 ]
 

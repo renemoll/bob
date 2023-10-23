@@ -3,11 +3,6 @@ import os
 import platform
 
 
-if platform.system() in ["Linux"]:
-    EX_OK = os.EX_OK
-    EX_DATAERR = os.EX_DATAERR
-    EX_SOFTWARE = os.EX_SOFTWARE
-else:
-    EX_OK = 0
-    EX_DATAERR = 65
-    EX_SOFTWARE = 70
+EX_OK = os.EX_OK if platform.system() in ["Linux"] else 0
+EX_DATAERR = os.EX_DATAERR if platform.system() in ["Linux"] else 65
+EX_SOFTWARE = os.EX_SOFTWARE if platform.system() in ["Linux"] else 70

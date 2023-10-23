@@ -12,14 +12,9 @@ import types
 import typing
 
 from .api import Command
-from .bootstrap import bob_bootstrap, depends_on as bootstrap_depends
-from .build import bob_build, depends_on as build_depends
-from .configure import bob_configure, depends_on as configure_depends
-from .typehints import OptionsMapT
 
-# from .debug import bob_debug
-# from .format import bob_format
-# from .test import bob_test
+from .modules import get_task
+from .typehints import OptionsMapT
 
 
 class ExecutionTimer(contextlib.AbstractContextManager):
@@ -71,18 +66,18 @@ def bob(command: Command, options: OptionsMapT) -> None:
     logging.debug("Working directory: %s", cwd)
 
     tasks = _determine_dependent_tasks(command)
-    tasks += [command]
-    logging.debug("Processing %d tasks (%s)", len(tasks), tasks)
+    logging.debug("Processing %d tasks: %s", len(tasks), tasks)
 
     for task in tasks:
-        if task == Command.Bootstrap:
-            cmd_list = bob_bootstrap(options, cwd)
-        elif task == Command.Configure:
-            cmd_list = bob_configure(options, cwd)
-        # elif task == Command.Build:
-        else:
-            cmd_list = bob_build(options, cwd)
+        env = {
+            "root_path": cwd,
+        }
 
+        module = get_task(task)
+
+        mod_opts = module.parse_options(options)
+        mov_env = module.parse_env(env, options)
+        cmd_list = module.generate_commands(mod_opts, mov_env)
         for cmd in cmd_list:
             logging.debug(" ".join(cmd))
             with ExecutionTimer() as timer:
@@ -93,20 +88,14 @@ def bob(command: Command, options: OptionsMapT) -> None:
 
 
 def _determine_dependent_tasks(command: Command) -> typing.List[Command]:
-    deps = _get_dependent_tasks(command)
-    # i = len(deps)
-    # for d in deps:
-    # deps += _get_dependent_tasks(d)
+    def scan_deps(deps):
+        result = []
+        for n in deps:
+            result.append(n)
+            t = get_task(n)
+            result += scan_deps(t.depends_on())
+        return result
 
-    # if i == len(deps):
-    return deps
-    # return _determine_dependent_tasks(deps)
-
-
-def _get_dependent_tasks(command: Command) -> typing.List[Command]:
-    if command == Command.Bootstrap:
-        return bootstrap_depends()
-    if command == Command.Build:
-        return build_depends()
-
-    return configure_depends()
+    result = scan_deps([command])
+    result.reverse()
+    return result
