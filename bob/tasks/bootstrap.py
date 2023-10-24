@@ -1,18 +1,32 @@
 """The bootstrap task prepares the codebase for building."""
+import collections.abc
 import logging
 import pathlib
 import typing
-import collections.abc
 
-from ..api import Command
+from bob.api import Command
+from bob.typehints import CommandListT, EnvMapT, OptionsMapT
 
 
 def depends_on() -> typing.List[Command]:
-    """Returns a list of task names this task depends on."""
+    """Generate a list of task names this task depends on.
+
+    Returns:
+        A list of commands.
+    """
     return []
 
 
-def parse_env(env, options):
+def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
+    """Update the envorinment map.
+
+    Args:
+        env: a map with relevant locations in the codebase.
+        options: set of options to take into account.
+
+    Returns:
+        An updated env map.
+    """
     try:
         env["dependencies_path"] = pathlib.Path(options["dependencies"]["folder"])
     except KeyError:
@@ -20,18 +34,25 @@ def parse_env(env, options):
     return env
 
 
-def parse_options(options):
-    result = {}
+def parse_options(options: OptionsMapT) -> OptionsMapT:
+    """Update the options map.
+
+    Args:
+        options: set of options to take into account.
+
+    Returns:
+        An updated options map.
+    """
     if "dependencies" in options:
-        result["dependencies"] = {}
+        deps = {}
         for k, v in options["dependencies"].items():
             if isinstance(v, collections.abc.Mapping):
-                result["dependencies"][k] = v
+                deps[k] = v
+        options["dependencies"] = deps
+    return options
 
-    return result
 
-
-def generate_commands(options, env):
+def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     """Generate a set of commands to prepare the codebase.
 
     Args:
@@ -42,7 +63,6 @@ def generate_commands(options, env):
         A list of commands, each command is a list of strings which can be
         passed to `subprocess.run`.
     """
-
     result = []
     result += _setup_bob(env["root_path"])
 
@@ -54,7 +74,7 @@ def generate_commands(options, env):
     return result
 
 
-def _setup_bob(root_path: pathlib.Path):
+def _setup_bob(root_path: pathlib.Path) -> CommandListT:
     output_folder = root_path / "cmake"
     logging.debug("Determined cmake folder: %s", output_folder)
     output_folder.mkdir(parents=True, exist_ok=True)
@@ -69,7 +89,10 @@ def _setup_bob(root_path: pathlib.Path):
     ]
 
 
-def _gather_dependencies(deps, output_path: pathlib.Path):
+def _gather_dependencies(
+    deps: typing.Mapping[str, typing.Mapping[str, typing.Any]],
+    output_path: pathlib.Path,
+) -> CommandListT:
     logging.debug("Ensure external folder: %s", output_path)
     output_path.mkdir(parents=True, exist_ok=True)
 

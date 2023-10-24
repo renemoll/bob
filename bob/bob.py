@@ -11,10 +11,9 @@ import time
 import types
 import typing
 
-from .api import Command
-
-from .modules import get_task
-from .typehints import OptionsMapT
+from bob.api import Command
+from bob.modules import get_task
+from bob.typehints import OptionsMapT
 
 
 class ExecutionTimer(contextlib.AbstractContextManager):
@@ -34,7 +33,11 @@ class ExecutionTimer(contextlib.AbstractContextManager):
         self.duration_ns = 0
 
     def __enter__(self: "ExecutionTimer") -> "ExecutionTimer":
-        """Start the timed context by recording the current time."""
+        """Start the timed context by recording the current time.
+
+        Returns:
+            The timed context.
+        """
         self._start = time.perf_counter_ns()
         return self
 
@@ -44,7 +47,16 @@ class ExecutionTimer(contextlib.AbstractContextManager):
         exc_value: typing.Optional[BaseException],
         exc_traceback: typing.Optional[types.TracebackType],
     ) -> typing.Literal[False]:
-        """Stop the timed context and calculate the elapsed time."""
+        """Stop the timed context and calculate the elapsed time.
+
+        Args:
+            exc_type: optional exception type
+            exc_value: optional exception value
+            exc_traceback: optional exception traceback
+
+        Returns:
+            False, any captured exception will be propagated.
+        """
         stop = time.perf_counter_ns()
         self.duration_ns = stop - self._start
         self.duration_ms = self.duration_ns * 1e-6
@@ -75,8 +87,8 @@ def bob(command: Command, options: OptionsMapT) -> None:
 
         module = get_task(task)
 
-        mod_opts = module.parse_options(options)
         mov_env = module.parse_env(env, options)
+        mod_opts = module.parse_options(options)
         cmd_list = module.generate_commands(mod_opts, mov_env)
         for cmd in cmd_list:
             logging.debug(" ".join(cmd))
@@ -88,7 +100,7 @@ def bob(command: Command, options: OptionsMapT) -> None:
 
 
 def _determine_dependent_tasks(command: Command) -> typing.List[Command]:
-    def scan_deps(deps):
+    def scan_deps(deps: typing.List[Command]) -> typing.List[Command]:
         result = []
         for n in deps:
             result.append(n)

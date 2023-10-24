@@ -10,13 +10,13 @@ jobs:
       - name: Setup environment
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: '3.10'
 
       - name: Install package
         run: pip install -e .[tox]
 
       - name: "Execute unit-tests"
-        run: tox -e py38
+        run: tox -e py310
 
       - name: Upload coverage data to coveralls.io
         run: |

@@ -1,11 +1,38 @@
+"""Task loader.
+
+Each command Bob can execute has a corresponding module. These modules provide
+isoalted functionality solely for the specific command. Additionally, each module
+implement the same interface.
+"""
 import enum
 import logging
 import pathlib
 import pkgutil
+import types
 
-from .api import Command
+from bob.api import Command
 
-def list_tasks() -> enum.Enum:
+
+def get_task(command: Command) -> types.ModuleType:
+    """Get the module corresponding to the given task.
+
+    Args:
+        command: a valid Command
+
+    Returns:
+        A module to execute the command.
+
+    Raises:
+        ValueError: when the task has no corresponding module.
+    """
+    for t in _list_tasks():  # type: ignore
+        if t.name == command.name:
+            return _load_task(t)
+
+    raise ValueError("No corresponding task for %s", command)  # pragma: no cover
+
+
+def _list_tasks() -> enum.Enum:
     tasks_path = pathlib.Path(__file__).parent.resolve() / "tasks"
     modules = [
         name.capitalize() for _, name, _ in pkgutil.iter_modules([str(tasks_path)])
@@ -14,14 +41,7 @@ def list_tasks() -> enum.Enum:
     return enum.Enum("Tasks", modules)
 
 
-def load_task(task: enum.Enum):
+def _load_task(task: enum.Enum) -> types.ModuleType:
     import importlib
+
     return importlib.import_module(f".tasks.{task.name.lower()}", "bob")
-
-
-def get_task(command: Command):
-    for t in list_tasks():
-        if t.name == command.name:
-            return load_task(t)
-
-    raise ValueError("No corresponding task for %s", command)# pragma: no cover

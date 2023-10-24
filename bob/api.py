@@ -16,7 +16,11 @@ class Command(enum.Enum):
     # analyzers
 
     def __str__(self: "Command") -> str:
-        """String conversion."""
+        """Convert a Command to string.
+
+        Returns:
+            A string representation of a specific Command.
+        """
         return self.name
 
 
@@ -27,7 +31,11 @@ class BuildConfig(enum.Enum):
     Debug = 2
 
     def __str__(self: "BuildConfig") -> str:
-        """String conversion."""
+        """Convert a BuildConfig to string.
+
+        Returns:
+            A string representation of a specific BuildConfig.
+        """
         return self.name
 
 
@@ -43,5 +51,9 @@ class BuildTarget(enum.Enum):
     Stm32 = 3
 
     def __str__(self: "BuildTarget") -> str:
-        """String conversion."""
+        """Convert a BuildTarget to string.
+
+        Returns:
+            A string representation of a specific BuildTarget.
+        """
         return self.name

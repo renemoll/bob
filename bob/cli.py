@@ -24,16 +24,20 @@ import typing
 import docopt
 import toml
 
-from .api import BuildConfig, BuildTarget, Command
-from .bob import bob
-from .compat import EX_DATAERR, EX_OK, EX_SOFTWARE
+from bob.api import BuildConfig, BuildTarget, Command
+from bob.bob import bob
+from bob.compat import EX_DATAERR, EX_OK, EX_SOFTWARE
 
 
 ArgsT = typing.TypeVar("ArgsT", None, bool, str)
 
 
 def main() -> int:
-    """CLI entry-point."""
+    """CLI entry-point.
+
+    Returns:
+        A result code to be returned to the OS.
+    """
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(asctime)s - %(filename)s:%(lineno)s - %(levelname)s: %(message)s",
@@ -58,7 +62,6 @@ def main() -> int:
 
 
 def _determine_command(arguments: typing.Mapping[str, ArgsT]) -> Command:
-    """Returns a Command based on the given arguments."""
     if arguments["bootstrap"]:
         return Command.Bootstrap
     if arguments["configure"]:
@@ -71,7 +74,7 @@ def _determine_command(arguments: typing.Mapping[str, ArgsT]) -> Command:
 
 def _determine_options(
     arguments: typing.Mapping[str, ArgsT]
-) -> typing.Dict[str, typing.Any]:
+) -> typing.MutableMapping[str, typing.Any]:
     """Returns map with options based on the given arguments.
 
     Args:
@@ -99,7 +102,7 @@ def _determine_options(
         pass
     except Exception as ex:
         print(f"Error parsing `{toml_file}`")
-        print(f"{sys.exc_info()[0].__name__}: {sys.exc_info()[1]}")
+        print(f"{sys.exc_info()[0].__name__}: {sys.exc_info()[1]}")  # type: ignore
         raise ValueError from ex
 
     user_options = {
@@ -114,7 +117,6 @@ def _determine_options(
 
 
 def _determine_build_config(arguments: typing.Mapping[str, ArgsT]) -> BuildConfig:
-    """Returns a BuildConfig based on the given arguments."""
     if arguments["release"]:
         return BuildConfig.Release
     if arguments["debug"]:
@@ -141,7 +143,7 @@ def _determine_build_target(arguments: typing.Mapping[str, ArgsT]) -> BuildTarge
         if target == "linux":
             return BuildTarget.Linux
         # if target == "stm32":
-            # return BuildTarget.Stm32
+        # return BuildTarget.Stm32
 
         raise ValueError(f"Invalid target specified: '{target}'")
     except AttributeError:

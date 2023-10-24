@@ -1,6 +1,7 @@
 """Test the CLI entry point."""
 import os
 import pathlib
+import shutil
 import subprocess
 import tempfile
 
@@ -626,7 +627,6 @@ def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
         check=True,
     )
 
-import shutil
 
 def test_cli_read_toml_file(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI reads and utilizes an options TOML file."""
@@ -690,4 +690,3 @@ def test_cli_error_invalid_toml_file(mocker: pytest_mock.MockerFixture) -> None:
 
         # 3. Verify
         assert not (work / "external").is_dir()
-

@@ -2,12 +2,18 @@
 import pathlib
 import typing
 
-from .api import BuildTarget
-from .typehints import OptionsT
+from bob.api import BuildTarget
 
 
-def determine_output_folder(options: typing.Mapping[str, OptionsT]) -> str:
-    """Generate the output path based on project settings."""
+def determine_output_folder(options: typing.Mapping[str, str]) -> str:
+    """Generate the output path based on project settings.
+
+    Args:
+        options: set of options to take into account.
+
+    Returns:
+        The output' folder name for the given options.
+    """
     return f"{options['target']}-{options['config']}".lower()
 
 

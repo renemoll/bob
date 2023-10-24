@@ -1,7 +1,8 @@
 """Provide type hints for commonly used types."""
+import pathlib
 import typing
 
-from .api import BuildConfig, BuildTarget
 
-OptionsT = typing.TypeVar("OptionsT", BuildConfig, BuildTarget)
-OptionsMapT = typing.Mapping[str, typing.Mapping[str, OptionsT]]
+OptionsMapT = typing.MutableMapping[str, typing.Any]
+EnvMapT = typing.MutableMapping[str, pathlib.Path]
+CommandListT = typing.List[typing.List[str]]
