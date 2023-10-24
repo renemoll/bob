@@ -5,6 +5,7 @@ isoalted functionality solely for the specific command. Additionally, each modul
 implement the same interface.
 """
 import enum
+import importlib
 import logging
 import pathlib
 import pkgutil
@@ -29,7 +30,7 @@ def get_task(command: Command) -> types.ModuleType:
         if t.name == command.name:
             return _load_task(t)
 
-    raise ValueError("No corresponding task for %s", command)  # pragma: no cover
+    raise ValueError(f"No corresponding task for {command}")  # pragma: no cover
 
 
 def _list_tasks() -> enum.Enum:
@@ -42,6 +43,4 @@ def _list_tasks() -> enum.Enum:
 
 
 def _load_task(task: enum.Enum) -> types.ModuleType:
-    import importlib
-
     return importlib.import_module(f".tasks.{task.name.lower()}", "bob")

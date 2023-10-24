@@ -20,4 +20,4 @@ jobs:
 
     - name: Coveralls
       uses: coverallsapp/github-action@v2
-      file: build/junit-py310.xml
+      file: build/coverage-py310.xml
