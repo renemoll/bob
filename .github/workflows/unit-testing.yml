@@ -18,9 +18,6 @@ jobs:
       - name: "Execute unit-tests"
         run: tox -e py310
 
-      - name: Upload coverage data to coveralls.io
-        run: |
-          python -m pip install coverage[toml] coveralls
-          coveralls --service=github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Coveralls
+      uses: coverallsapp/github-action@v2
+      file: build/junit-py310.xml
