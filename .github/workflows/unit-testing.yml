@@ -18,6 +18,6 @@ jobs:
       - name: "Execute unit-tests"
         run: tox -e py310
 
-    - name: Coveralls
-      uses: coverallsapp/github-action@v2
-      file: build/coverage-py310.xml
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        file: build/coverage-py310.xml
