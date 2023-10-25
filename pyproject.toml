@@ -6,7 +6,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bob-build-tool"
+name = "bob-the-developer"
 version = "0.2.0"
 description = "A collection of scripts to build C++ projects"
 readme = "README.rst"
