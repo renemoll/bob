@@ -11,6 +11,9 @@ Meet Bob
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
    :alt: Coding style
+.. image:: https://img.shields.io/github/license/renemoll/bob
+   :target: https://github.com/renemoll/bob/blob/main/LICENSE
+   :alt: GitHub
 
 Bob is my collection of build tools. The goal is to provide a simple interface
 to build and test projects without having to remember or lookup various commands.
