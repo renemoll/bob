@@ -54,8 +54,7 @@ dev = [
     "flake8-bugbear",
     "flake8-docstrings",
     "flake8-import-order",
-    "darglint",
-    "hacking",
+    "pydoclint",
     "pylint",
     "pytest",
     "pytest-cov",
@@ -102,8 +101,8 @@ testpaths = [
     "tests",
 ]
 
-[tool.pydocstyle]
-convention = "google"
+[tool.pydoclint]
+style  = "google"
 
 [tool.mypy]
 mypy_path = "./bob/;./tests/"

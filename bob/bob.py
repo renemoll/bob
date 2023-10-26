@@ -26,7 +26,6 @@ class ExecutionTimer(contextlib.AbstractContextManager):
     """
 
     def __init__(self: "ExecutionTimer") -> None:
-        """High resolution timer to capture the execution time of a block."""
         self._start = 0
         self.duration = 0.0
         self.duration_ms = 0.0
