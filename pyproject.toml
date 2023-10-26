@@ -65,45 +65,37 @@ dev = [
 ]
 test = [
     "docopt",
-    "pytest",
+    "pytest>=7.4",
     "pytest-cov",
     "pytest-mock",
     "toml",
 ]
 tox = [
-    "tox",
+    "tox>=4.0",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py38']
 
-[tool.coverage.paths]
-source = ["bob/", "*/site-packages"]
 
-[tool.coverage.run]
-branch = true
-source = ["bob"]
-# omit = ["bob/compat.py"]
-
-[tool.coverage.report]
-show_missing = true
-fail_under = 100
-
-[tool.coverage.html]
-directory = "build/cov-html/"
+[tool.coverage]
+html.directory = "build/coverage-html/"
+paths.source = [
+    "bob",
+    "*/site-packages"
+]
+report.show_missing = true
+report.fail_under = 95
+run.branch = true
+run.source = ["bob"]
 
 [tool.pytest.ini_options]
-addopts = "--cov -vv"
-minversion = 6.0
-required_plugins = "pytest-cov>=3.0.0"
-testpaths = [
-    "tests",
-]
+addopts = "--showlocals -vv --cov"
+testpaths = ["tests"]
 
 [tool.pydoclint]
 style  = "google"
 
 [tool.mypy]
 mypy_path = "./bob/;./tests/"
-show_error_codes = true

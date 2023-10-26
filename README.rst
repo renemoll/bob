@@ -76,7 +76,7 @@ Run the complete test-suite
 
 .. code-block:: bash
 
-   tox .
+   tox
 
 Configured tools
 ~~~~~~~~~~~~~~~~
