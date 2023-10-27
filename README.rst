@@ -82,16 +82,9 @@ Configured tools
 ~~~~~~~~~~~~~~~~
 
 1. ``black`` for code formatting.
-2. ``flake8`` for linting with:
-
-   * static analysis (``flake8-bandit``, ``flake8-bugbear``)
-   * type annotations (``flake8-annotations``)
-   * documentation style checks (``flake8-docstrings``)
-   * code style checks (``flake8-black``, ``flake8-import-order``)
-
+2. ``ruff`` for linting.
 3. ``pylint`` for linting.
-4. ``bandit`` for static analysis.
-5. ``mypy`` for static type checking.
+4. ``mypy`` for static type checking.
 
 Roadmap
 =======

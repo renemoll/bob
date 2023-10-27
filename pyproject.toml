@@ -47,18 +47,13 @@ bob = "bob.cli:main"
 
 [project.optional-dependencies]
 dev = [
-    "flake8",
-    "flake8-annotations",
-    "flake8-bandit",
-    "flake8-black",
-    "flake8-bugbear",
-    "flake8-docstrings",
-    "flake8-import-order",
+    "black",
     "pydoclint",
     "pylint",
     "pytest",
     "pytest-cov",
     "pytest-mock",
+    "ruff",
     "mypy",
     "types-docopt",
     "types-toml",
@@ -77,7 +72,6 @@ tox = [
 [tool.black]
 line-length = 88
 target-version = ['py38']
-
 
 [tool.coverage]
 html.directory = "build/coverage-html/"
@@ -99,3 +93,36 @@ style  = "google"
 
 [tool.mypy]
 mypy_path = "./bob/;./tests/"
+
+[tool.ruff]
+target-version = "py38"
+
+line-length = 88
+indent-width = 4
+
+pydocstyle.convention = "google"
+
+select = ["ALL"]
+ignore = [
+    # FA: flake8-future-annotations
+    "FA",
+    # COM812: trailing comma missing
+    "COM812",
+    # D203: 1 blank line required before class docstring
+    "D203",
+    # EM: flake8-errmsg
+    "EM",
+    # E203: whitespace before ‘,’, ‘;’, or ‘:’
+    "E203",
+    # E501: line too long
+    "E501",
+    # B603: subprocess without shell equals true
+    "S603",
+    # TRY003:
+    "TRY003"
+]
+
+extend-exclude = ["__init__.py"]
+
+[tool.ruff.extend-per-file-ignores]
+"test_*.py" = ["S101"]
