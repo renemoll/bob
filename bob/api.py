@@ -9,9 +9,9 @@ class Command(enum.Enum):
     Bootstrap = 1
     Configure = 2
     Build = 3
-    # Test = 3
-    # 	Debug
-    # 	Format
+    # Test
+    # Debug
+    # Format
     # lint
     # analyzers
 

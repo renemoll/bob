@@ -23,7 +23,8 @@ def test_bootstrap_default_options(tmp_path: pathlib.Path) -> None:
     result = generate_commands(options, env)
 
     # 3. Verify
-    assert len(result) == 2
+    nof_commands = 2
+    assert len(result) == nof_commands
     assert result[0] == ["cmake", "-E", "make_directory", f"{env['root_path']}/cmake"]
     template_path = pathlib.Path(bob.__file__).parent / "templates"
     template = template_path / "FindBob.cmake"
@@ -58,7 +59,8 @@ def test_bootstrap_external_git_repo(tmp_path: pathlib.Path) -> None:
     result = generate_commands(options, env)
 
     # 3. Verify
-    assert len(result) == 3
+    nof_commands = 3
+    assert len(result) == nof_commands
     assert result[2] == [
         "git",
         "clone",

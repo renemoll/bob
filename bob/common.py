@@ -42,14 +42,5 @@ def generate_container_command(
             f"{cwd}:/work/",
             "renemoll/builder_clang",
         ]
-    # if target == BuildTarget.Stm32:
-    #     return [
-    #         "docker",
-    #         "run",
-    #         "--rm",
-    #         "-v",
-    #         f"{cwd}:/work/",
-    #         "renemoll/builder_arm_gcc",
-    #     ]
 
     return []

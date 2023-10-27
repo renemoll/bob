@@ -26,6 +26,7 @@ class ExecutionTimer(contextlib.AbstractContextManager):
     """
 
     def __init__(self: "ExecutionTimer") -> None:
+        """Initialize ExecutionTimer."""
         self._start = 0
         self.duration = 0.0
         self.duration_ms = 0.0

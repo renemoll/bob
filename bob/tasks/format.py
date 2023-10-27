@@ -1,7 +1,7 @@
 """Module focussing on the `format` command.
 
 Contains the task and helpers to format the codebase given a specific formatter.
-"""
+
 
 # import pathlib
 #
@@ -26,3 +26,5 @@ Contains the task and helpers to format the codebase given a specific formatter.
 # 			str(pathlib.PurePosixPath(file.relative_to(cwd)))
 # 		])
 # 	return steps
+
+"""
