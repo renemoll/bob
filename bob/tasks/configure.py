@@ -3,6 +3,7 @@
 Contains the task and helpers to configure a build.
 """
 import logging
+import pathlib
 import typing
 
 from bob.api import BuildTarget, Command
@@ -18,7 +19,6 @@ def depends_on() -> typing.List[Command]:
     """
     return []
 
-
 def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
     """Update the envorinment map.
 
@@ -29,20 +29,10 @@ def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
     Returns:
         An updated env map.
     """
+    name = determine_output_folder(options["build"])
+    env["build_path"] = env["root_path"] / "build" / name
+    logging.debug("Determined output folder: %s", env["build_path"])
     return env
-
-
-def parse_options(options: OptionsMapT) -> OptionsMapT:
-    """Update the options map.
-
-    Args:
-        options: set of options to take into account.
-
-    Returns:
-        An updated options map.
-    """
-    return options
-
 
 def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     """Generate a set of configure the build.
@@ -58,30 +48,24 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     Todo:
         - split target and compiler (should be a matrix [target vs compiler])
     """
-    output_folder = determine_output_folder(options["build"])
-    logging.debug("Determined output folder: %s", output_folder)
-
     steps = []
     if options["use-container"]:
         steps += generate_container_command(
             options["build"]["target"], env["root_path"]
         )
 
-    steps += _generate_build_system_command(options, output_folder)
-
-    # if options["build"]["target"] == BuildTarget.Stm32:
-    #     steps += options["configure"]["stm32"]["options"]
+    steps += _generate_build_system_command(options, env["build_path"])
 
     return [steps]
 
 
 def _generate_build_system_command(
-    options: OptionsMapT, output_folder: str
+    options: OptionsMapT, output_folder: pathlib.Path
 ) -> typing.List[str]:
     cmd = [
         "cmake",
         "-B",
-        f"build/{output_folder}",
+        str(output_folder),
         "-S",
         ".",
         f"-DCMAKE_BUILD_TYPE={options['build']['config']}",

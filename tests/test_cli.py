@@ -304,7 +304,8 @@ def test_cli_configure_invalid_target(mocker: pytest_mock.MockerFixture) -> None
     result = main()
 
     # 3. Verify
-    assert result == 65
+    invalid_arguments_code = 65
+    assert result == invalid_arguments_code
     subprocess.run.assert_not_called()
 
 

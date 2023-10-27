@@ -80,16 +80,21 @@ def bob(command: Command, options: OptionsMapT) -> None:
     tasks = _determine_dependent_tasks(command)
     logging.debug("Processing %d tasks: %s", len(tasks), tasks)
 
+    env = {
+        "root_path": cwd,
+    }
     for task in tasks:
-        env = {
-            "root_path": cwd,
-        }
-
         module = get_task(task)
 
-        mov_env = module.parse_env(env, options)
-        mod_opts = module.parse_options(options)
-        cmd_list = module.generate_commands(mod_opts, mov_env)
+        with contextlib.suppress(AttributeError):
+            env = module.parse_env(env, options)
+
+        try:
+            mod_opts = module.parse_options(options)
+        except AttributeError:
+            mod_opts = options
+
+        cmd_list = module.generate_commands(mod_opts, env)
         for cmd in cmd_list:
             logging.debug(" ".join(cmd))
             with ExecutionTimer() as timer:
