@@ -48,6 +48,7 @@ bob = "bob.cli:main"
 [project.optional-dependencies]
 dev = [
     "black",
+    "pre-commit",
     "pydoclint",
     "pylint",
     "pytest",

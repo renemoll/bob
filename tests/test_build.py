@@ -23,10 +23,7 @@ def test_build_default_options(tmp_path: pathlib.Path) -> None:
         "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Native},
         "use-container": False,
     }
-    env = {
-        "root_path": tmp_path,
-        "build_path": "build/native-release"
-    }
+    env = {"root_path": tmp_path, "build_path": "build/native-release"}
 
     # 2. Execute
     result = generate_commands(options, env)
@@ -43,10 +40,7 @@ def test_build_with_container_native(tmp_path: pathlib.Path) -> None:
         "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Native},
         "use-container": True,
     }
-    env = {
-        "root_path": tmp_path,
-        "build_path": "build/native-release"
-    }
+    env = {"root_path": tmp_path, "build_path": "build/native-release"}
 
     # 2. Execute
     result = generate_commands(options, env)
@@ -63,10 +57,7 @@ def test_build_with_container_linux_clang(tmp_path: pathlib.Path) -> None:
         "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Linux},
         "use-container": True,
     }
-    env = {
-        "root_path": tmp_path,
-        "build_path": "build/linux-release"
-    }
+    env = {"root_path": tmp_path, "build_path": "build/linux-release"}
 
     # 2. Execute
     result = generate_commands(options, env)
