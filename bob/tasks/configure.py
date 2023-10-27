@@ -19,6 +19,7 @@ def depends_on() -> typing.List[Command]:
     """
     return []
 
+
 def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
     """Update the envorinment map.
 
@@ -30,9 +31,11 @@ def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
         An updated env map.
     """
     name = determine_output_folder(options["build"])
-    env["build_path"] = env["root_path"] / "build" / name
+    env["build_path"] = pathlib.Path("build") / name
+    env["source_path"] = pathlib.Path(".")  # noqa: PTH201
     logging.debug("Determined output folder: %s", env["build_path"])
     return env
+
 
 def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     """Generate a set of configure the build.
@@ -54,20 +57,22 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
             options["build"]["target"], env["root_path"]
         )
 
-    steps += _generate_build_system_command(options, env["build_path"])
+    steps += _generate_build_system_command(
+        options, env["build_path"], env["source_path"]
+    )
 
     return [steps]
 
 
 def _generate_build_system_command(
-    options: OptionsMapT, output_folder: pathlib.Path
+    options: OptionsMapT, output_path: pathlib.Path, source_path: pathlib.Path
 ) -> typing.List[str]:
     cmd = [
         "cmake",
         "-B",
-        str(output_folder),
+        str(output_path),
         "-S",
-        ".",
+        str(source_path),
         f"-DCMAKE_BUILD_TYPE={options['build']['config']}",
     ]
 

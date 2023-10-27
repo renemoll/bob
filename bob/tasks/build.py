@@ -41,5 +41,5 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     return [steps]
 
 
-def _generate_build_project_command(output_folder: pathlib.Path) -> typing.List[str]:
-    return ["cmake", "--build", output_folder]
+def _generate_build_project_command(output_path: pathlib.Path) -> typing.List[str]:
+    return ["cmake", "--build", str(output_path)]
