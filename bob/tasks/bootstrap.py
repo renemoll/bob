@@ -27,7 +27,7 @@ def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
     Returns:
         An updated env map.
     """
-    try:
+    try:  # noqa: SIM105
         env["dependencies_path"] = pathlib.Path(options["dependencies"]["folder"])
     except KeyError:
         pass

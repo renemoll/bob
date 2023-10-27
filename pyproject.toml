@@ -7,8 +7,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bob-the-developer"
-version = "0.2.2"
 description = "A collection of scripts to build C++ projects"
+dynamic = ["version"]
 readme = "README.rst"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
@@ -47,63 +47,83 @@ bob = "bob.cli:main"
 
 [project.optional-dependencies]
 dev = [
-    "flake8",
-    "flake8-annotations",
-    "flake8-bandit",
-    "flake8-black",
-    "flake8-bugbear",
-    "flake8-docstrings",
-    "flake8-import-order",
+    "black",
+    "pre-commit",
     "pydoclint",
     "pylint",
     "pytest",
     "pytest-cov",
     "pytest-mock",
+    "ruff",
     "mypy",
     "types-docopt",
     "types-toml",
 ]
 test = [
     "docopt",
-    "pytest",
+    "pytest>=7.4",
     "pytest-cov",
     "pytest-mock",
     "toml",
 ]
 tox = [
-    "tox",
+    "tox>=4.0",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py38']
 
-[tool.coverage.paths]
-source = ["bob/", "*/site-packages"]
-
-[tool.coverage.run]
-branch = true
-source = ["bob"]
-# omit = ["bob/compat.py"]
-
-[tool.coverage.report]
-show_missing = true
-fail_under = 100
-
-[tool.coverage.html]
-directory = "build/cov-html/"
+[tool.coverage]
+html.directory = "build/coverage-html/"
+paths.source = [
+    "bob",
+    "*/site-packages"
+]
+report.show_missing = true
+report.fail_under = 95
+run.branch = true
+run.source = ["bob"]
 
 [tool.pytest.ini_options]
-addopts = "--cov -vv"
-minversion = 6.0
-required_plugins = "pytest-cov>=3.0.0"
-testpaths = [
-    "tests",
-]
+addopts = "--showlocals -vv --cov"
+testpaths = ["tests"]
 
 [tool.pydoclint]
 style  = "google"
 
 [tool.mypy]
 mypy_path = "./bob/;./tests/"
-show_error_codes = true
+
+[tool.ruff]
+target-version = "py38"
+
+line-length = 88
+indent-width = 4
+
+pydocstyle.convention = "google"
+
+select = ["ALL"]
+ignore = [
+    # FA: flake8-future-annotations
+    "FA",
+    # COM812: trailing comma missing
+    "COM812",
+    # D203: 1 blank line required before class docstring
+    "D203",
+    # EM: flake8-errmsg
+    "EM",
+    # E203: whitespace before ‘,’, ‘;’, or ‘:’
+    "E203",
+    # E501: line too long
+    "E501",
+    # B603: subprocess without shell equals true
+    "S603",
+    # TRY003:
+    "TRY003"
+]
+
+extend-exclude = ["__init__.py"]
+
+[tool.ruff.extend-per-file-ignores]
+"test_*.py" = ["S101"]

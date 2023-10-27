@@ -1,0 +1,19 @@
+
+exclude: 'tests/config/invalid.toml'
+
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.5.0
+  hooks:
+  - id: check-toml
+  - id: check-yaml
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+- repo: https://github.com/psf/black
+  rev: 23.10.1
+  hooks:
+  - id: black
+- repo: https://github.com/abravalheri/validate-pyproject
+  rev: v0.15
+  hooks:
+  - id: validate-pyproject

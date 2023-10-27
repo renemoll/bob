@@ -18,7 +18,6 @@ Options:
 import logging
 import pathlib
 import subprocess
-import sys
 import typing
 
 import docopt
@@ -27,7 +26,6 @@ import toml
 from bob.api import BuildConfig, BuildTarget, Command
 from bob.bob import bob
 from bob.compat import EX_DATAERR, EX_OK, EX_SOFTWARE
-
 
 ArgsT = typing.TypeVar("ArgsT", None, bool, str)
 
@@ -48,14 +46,14 @@ def main() -> int:
     try:
         command = _determine_command(arguments)
         options = _determine_options(arguments)
-    except ValueError as ex:
-        print(ex)
+    except ValueError:
+        logging.exception("Exception caught parsing command line input")
         return EX_DATAERR
 
     try:
         bob(command, options)
-    except subprocess.CalledProcessError as ex:
-        print(ex)
+    except subprocess.CalledProcessError:
+        logging.exception("Exception caught executing commands")
         return EX_SOFTWARE
 
     return EX_OK
@@ -66,10 +64,7 @@ def _determine_command(arguments: typing.Mapping[str, ArgsT]) -> Command:
         return Command.Bootstrap
     if arguments["configure"]:
         return Command.Configure
-    # elif arguments["build"]:
     return Command.Build
-
-    # raise ValueError("Unsupported command")
 
 
 def _determine_options(
@@ -101,8 +96,7 @@ def _determine_options(
     except FileNotFoundError:
         pass
     except Exception as ex:
-        print(f"Error parsing `{toml_file}`")
-        print(f"{sys.exc_info()[0].__name__}: {sys.exc_info()[1]}")  # type: ignore
+        logging.exception("Exception caught parsing %s", toml_file)
         raise ValueError from ex
 
     user_options = {
@@ -139,13 +133,11 @@ def _determine_build_target(arguments: typing.Mapping[str, ArgsT]) -> BuildTarge
         A BuildTarget based on the given arguments.
     """
     try:
-        target = arguments["<target>"].lower()  # type: ignore
+        target = arguments["<target>"].lower()  # type: ignore [attr-defined]
         if target == "linux":
             return BuildTarget.Linux
-        # if target == "stm32":
-        # return BuildTarget.Stm32
 
-        raise ValueError(f"Invalid target specified: '{target}'")
+        raise ValueError(f"Invalid target specified: {target}")
     except AttributeError:
         logging.info("No build target selected, defaulting to native build target")
         return BuildTarget.Native

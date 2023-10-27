@@ -1,9 +1,9 @@
 """The build task builds the codebase."""
-import logging
+import pathlib
 import typing
 
 from bob.api import Command
-from bob.common import determine_output_folder, generate_container_command
+from bob.common import generate_container_command
 from bob.typehints import CommandListT, EnvMapT, OptionsMapT
 
 
@@ -14,31 +14,6 @@ def depends_on() -> typing.List[Command]:
         A list of commands.
     """
     return [Command.Configure]
-
-
-def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
-    """Update the envorinment map.
-
-    Args:
-        env: a map with relevant locations in the codebase.
-        options: set of options to take into account.
-
-    Returns:
-        An updated env map.
-    """
-    return env
-
-
-def parse_options(options: OptionsMapT) -> OptionsMapT:
-    """Update the options map.
-
-    Args:
-        options: set of options to take into account.
-
-    Returns:
-        An updated options map.
-    """
-    return options
 
 
 def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
@@ -55,19 +30,16 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     Todo:
         - split target and compiler (should be a matrix [target vs compiler])
     """
-    output_folder = determine_output_folder(options["build"])
-    logging.debug("Determined output folder: %s", output_folder)
-
     steps = []
     if options["use-container"]:
         steps += generate_container_command(
             options["build"]["target"], env["root_path"]
         )
 
-    steps += _generate_build_project_command(output_folder)
+    steps += _generate_build_project_command(env["build_path"])
 
     return [steps]
 
 
-def _generate_build_project_command(output_folder: str) -> typing.List[str]:
-    return ["cmake", "--build", f"build/{output_folder}"]
+def _generate_build_project_command(output_path: pathlib.Path) -> typing.List[str]:
+    return ["cmake", "--build", str(output_path)]

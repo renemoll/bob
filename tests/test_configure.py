@@ -2,7 +2,7 @@
 import pathlib
 
 import bob
-from bob.tasks.configure import depends_on, generate_commands
+from bob.tasks.configure import depends_on, generate_commands, parse_env
 
 
 def test_dependency() -> None:
@@ -24,6 +24,7 @@ def test_configure_default_options(tmp_path: pathlib.Path) -> None:
         "use-container": False,
     }
     env = {"root_path": tmp_path}
+    env = parse_env(env, options)
 
     # 2. Execute
     result = generate_commands(options, env)
@@ -48,6 +49,7 @@ def test_configure_with_container_native(tmp_path: pathlib.Path) -> None:
         "use-container": True,
     }
     env = {"root_path": tmp_path}
+    env = parse_env(env, options)
 
     # 2. Execute
     result = generate_commands(options, env)
@@ -72,6 +74,7 @@ def test_configure_with_container_linux_clang(tmp_path: pathlib.Path) -> None:
         "use-container": True,
     }
     env = {"root_path": tmp_path}
+    env = parse_env(env, options)
 
     # 2. Execute
     result = generate_commands(options, env)

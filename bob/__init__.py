@@ -1,4 +1,4 @@
-"""API for bob."""
+"""API for Bob."""
 
 from bob.api import BuildConfig, BuildTarget, Command
 from bob.bob import bob

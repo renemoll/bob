@@ -26,7 +26,7 @@ def get_task(command: Command) -> types.ModuleType:
     Raises:
         ValueError: when the task has no corresponding module.
     """
-    for t in _list_tasks():  # type: ignore
+    for t in _list_tasks():  # type: ignore [attr-defined]
         if t.name == command.name:
             return _load_task(t)
 
