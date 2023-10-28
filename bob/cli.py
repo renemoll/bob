@@ -23,6 +23,7 @@ import typing
 import docopt
 import toml
 
+from bob import __version__
 from bob.api import BuildConfig, BuildTarget, Command
 from bob.bob import bob
 from bob.compat import EX_DATAERR, EX_OK, EX_SOFTWARE
@@ -42,7 +43,7 @@ def main() -> int:
         datefmt="%Y.%m.%d %H:%M:%S",
     )
 
-    arguments = docopt.docopt(__doc__, version="Bob 2023.10.0")
+    arguments = docopt.docopt(__doc__, version=__version__)
     try:
         command = _determine_command(arguments)
         options = _determine_options(arguments)
