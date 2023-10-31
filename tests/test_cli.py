@@ -3,12 +3,23 @@ import os
 import pathlib
 import shutil
 import subprocess
-import tempfile
 
 import docopt
+import pytest
 import pytest_mock
 
 from bob.cli import main
+
+
+@pytest.fixture(scope="session")
+def valid_config_path(tmp_path_factory):
+    work = tmp_path_factory.mktemp("work")
+    os.chdir(str(work))
+
+    toml_file = pathlib.Path(__file__).parent.resolve() / "config" / "bob.toml"
+    shutil.copy(toml_file, work / "bob.toml")
+
+    return work
 
 
 def test_cli_bootstrap(
@@ -151,7 +162,9 @@ def test_cli_configure_debug(mocker: pytest_mock.MockerFixture) -> None:
     )
 
 
-def test_cli_configure_linux_default(mocker: pytest_mock.MockerFixture) -> None:
+def test_cli_configure_linux_default(
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
     mocker.patch("subprocess.run")
@@ -188,14 +201,16 @@ def test_cli_configure_linux_default(mocker: pytest_mock.MockerFixture) -> None:
             "-S",
             ".",
             "-DCMAKE_BUILD_TYPE=Release",
-            "-G",
-            "Ninja",
+            # "-G",
+            # "Ninja",
         ],
         check=True,
     )
 
 
-def test_cli_configure_linux_release(mocker: pytest_mock.MockerFixture) -> None:
+def test_cli_configure_linux_release(
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
     mocker.patch("subprocess.run")
@@ -232,14 +247,16 @@ def test_cli_configure_linux_release(mocker: pytest_mock.MockerFixture) -> None:
             "-S",
             ".",
             "-DCMAKE_BUILD_TYPE=Release",
-            "-G",
-            "Ninja",
+            # "-G",
+            # "Ninja",
         ],
         check=True,
     )
 
 
-def test_cli_configure_linux_debug(mocker: pytest_mock.MockerFixture) -> None:
+def test_cli_configure_linux_debug(
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
     mocker.patch("subprocess.run")
@@ -276,8 +293,8 @@ def test_cli_configure_linux_debug(mocker: pytest_mock.MockerFixture) -> None:
             "-S",
             ".",
             "-DCMAKE_BUILD_TYPE=Debug",
-            "-G",
-            "Ninja",
+            # "-G",
+            # "Ninja",
         ],
         check=True,
     )
@@ -423,7 +440,9 @@ def test_cli_build_debug(mocker: pytest_mock.MockerFixture) -> None:
     )
 
 
-def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
+def test_cli_build_linux_default(
+    mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path
+) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
     mocker.patch("subprocess.run")
@@ -460,8 +479,8 @@ def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
             "-S",
             ".",
             "-DCMAKE_BUILD_TYPE=Release",
-            "-G",
-            "Ninja",
+            # "-G",
+            # "Ninja",
         ],
         check=True,
     )
@@ -481,7 +500,9 @@ def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
     )
 
 
-def test_cli_build_linux_release(mocker: pytest_mock.MockerFixture) -> None:
+def test_cli_build_linux_release(
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
     mocker.patch("subprocess.run")
@@ -518,8 +539,8 @@ def test_cli_build_linux_release(mocker: pytest_mock.MockerFixture) -> None:
             "-S",
             ".",
             "-DCMAKE_BUILD_TYPE=Release",
-            "-G",
-            "Ninja",
+            # "-G",
+            # "Ninja",
         ],
         check=True,
     )
@@ -539,7 +560,9 @@ def test_cli_build_linux_release(mocker: pytest_mock.MockerFixture) -> None:
     )
 
 
-def test_cli_build_linux_debug(mocker: pytest_mock.MockerFixture) -> None:
+def test_cli_build_linux_debug(
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
     mocker.patch("subprocess.run")
@@ -576,8 +599,8 @@ def test_cli_build_linux_debug(mocker: pytest_mock.MockerFixture) -> None:
             "-S",
             ".",
             "-DCMAKE_BUILD_TYPE=Debug",
-            "-G",
-            "Ninja",
+            # "-G",
+            # "Ninja",
         ],
         check=True,
     )
@@ -629,7 +652,9 @@ def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
     )
 
 
-def test_cli_read_toml_file(mocker: pytest_mock.MockerFixture) -> None:
+def test_cli_read_toml_file(
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+) -> None:
     """Verify the CLI reads and utilizes an options TOML file."""
     # 1. Prepare
     mocker.patch("docopt.docopt")
@@ -645,23 +670,16 @@ def test_cli_read_toml_file(mocker: pytest_mock.MockerFixture) -> None:
         "release": False,
     }
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = pathlib.Path(tmp_dir)
-        work = tmp_path / "work"
-        work.mkdir()
-        os.chdir(str(work))
+    # 2. Execute
+    main()
 
-        toml_file = pathlib.Path(__file__).parent.resolve() / "config" / "bob.toml"
-        shutil.copy(toml_file, work / "bob.toml")
-
-        # 2. Execute
-        main()
-
-        # 3. Verify
-        assert (work / "external").is_dir()
+    # 3. Verify
+    assert (valid_config_path / "external").is_dir()
 
 
-def test_cli_error_invalid_toml_file(mocker: pytest_mock.MockerFixture) -> None:
+def test_cli_error_invalid_toml_file(
+    mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path
+) -> None:
     """Verify the CLI reads and utilizes an options TOML file."""
     # 1. Prepare
     mocker.patch("docopt.docopt")
@@ -677,17 +695,15 @@ def test_cli_error_invalid_toml_file(mocker: pytest_mock.MockerFixture) -> None:
         "release": False,
     }
 
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = pathlib.Path(tmp_dir)
-        work = tmp_path / "work"
-        work.mkdir()
-        os.chdir(str(work))
+    work = tmp_path / "work"
+    work.mkdir()
+    os.chdir(str(work))
 
-        toml_file = pathlib.Path(__file__).parent.resolve() / "config" / "invalid.toml"
-        shutil.copy(toml_file, work / "bob.toml")
+    toml_file = pathlib.Path(__file__).parent.resolve() / "config" / "invalid.toml"
+    shutil.copy(toml_file, work / "bob.toml")
 
-        # 2. Execute
-        main()
+    # 2. Execute
+    main()
 
-        # 3. Verify
-        assert not (work / "external").is_dir()
+    # 3. Verify
+    assert not (work / "external").is_dir()

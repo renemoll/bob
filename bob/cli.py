@@ -1,7 +1,7 @@
 """The builder, Bob the builder.
 
 Usage:
-    bob.py bootstrap
+    bob.py bootstrap [<target>]
     bob.py configure [<target>] [(debug|release)]
     bob.py build [<target>] [(debug|release)]
     bob.py -h | --help
@@ -15,6 +15,7 @@ Options:
     -h --help        Show this screen.
     --version        Show version.
 """
+import contextlib
 import logging
 import pathlib
 import subprocess
@@ -24,7 +25,7 @@ import docopt
 import toml
 
 from bob import __version__
-from bob.api import BuildConfig, BuildTarget, Command
+from bob.api import BuildConfig, Command, generate_targets
 from bob.bob import bob
 from bob.compat import EX_DATAERR, EX_OK, EX_SOFTWARE
 
@@ -83,7 +84,8 @@ def _determine_options(
         ValueError: upon errors parsing a `bob.toml` file.
 
     Todo:
-        - update return type annotation.
+        - settings such as toolchains and targets should be filtered such that only the active/relevant settings remain.
+        - toolchain may have container and archive?
     """
     options = {}
 
@@ -100,12 +102,16 @@ def _determine_options(
         logging.exception("Exception caught parsing %s", toml_file)
         raise ValueError from ex
 
+    targets = ["native"]
+    with contextlib.suppress(KeyError):
+        targets += list(options["targets"].keys())
+    options["targets"] = generate_targets(targets)
+
     user_options = {
         "build": {
             "config": _determine_build_config(arguments),
-            "target": _determine_build_target(arguments),
-        },
-        "use-container": True,
+            "target": _determine_build_target(arguments, options),
+        }
     }
     options.update(user_options)
     return options
@@ -121,24 +127,16 @@ def _determine_build_config(arguments: typing.Mapping[str, ArgsT]) -> BuildConfi
     return BuildConfig.Release
 
 
-def _determine_build_target(arguments: typing.Mapping[str, ArgsT]) -> BuildTarget:
-    """Parse the arguments to determine the BuildTarget.
-
-    Args:
-        arguments: input arguments map.
-
-    Raises:
-        ValueError: when the input cannot be parsed properly.
-
-    Returns:
-        A BuildTarget based on the given arguments.
-    """
+def _determine_build_target(
+    arguments: typing.Mapping[str, ArgsT], options
+) -> "BuildTarget":
     try:
-        target = arguments["<target>"].lower()  # type: ignore [attr-defined]
-        if target == "linux":
-            return BuildTarget.Linux
+        target = arguments["<target>"].lower().capitalize()  # type: ignore [attr-defined]
+        for x in options["targets"]:
+            if x.name == target:
+                return x
 
         raise ValueError(f"Invalid target specified: {target}")
     except AttributeError:
         logging.info("No build target selected, defaulting to native build target")
-        return BuildTarget.Native
+        return options["targets"].Native

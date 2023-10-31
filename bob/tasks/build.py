@@ -31,11 +31,7 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
         - split target and compiler (should be a matrix [target vs compiler])
     """
     steps = []
-    if options["use-container"]:
-        steps += generate_container_command(
-            options["build"]["target"], env["root_path"]
-        )
-
+    steps += generate_container_command(options, env["root_path"])
     steps += _generate_build_project_command(env["build_path"])
 
     return [steps]

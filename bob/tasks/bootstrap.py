@@ -1,8 +1,16 @@
-"""The bootstrap task prepares the codebase for building."""
+"""The bootstrap task prepares the codebase for building.
+
+Bootstrapping ensures all dependencies and toolchains are avaialble. Actual building of
+dependencies is out of scope due to the project to project variation.
+"""
 import collections.abc
+import contextlib
 import logging
 import pathlib
+import platform
 import typing
+import urllib.request
+import shutil
 
 from bob.api import Command
 from bob.typehints import CommandListT, EnvMapT, OptionsMapT
@@ -27,10 +35,16 @@ def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
     Returns:
         An updated env map.
     """
-    try:  # noqa: SIM105
+    try:
         env["dependencies_path"] = pathlib.Path(options["dependencies"]["folder"])
     except KeyError:
-        pass
+        env["dependencies_path"] = env["root_path"] / "external"
+
+    try:
+        env["toolchains_path"] = pathlib.Path(options["toolchains"]["folder"])
+    except KeyError:
+        env["toolchains_path"] = env["root_path"] / "toolchains"
+
     return env
 
 
@@ -43,12 +57,21 @@ def parse_options(options: OptionsMapT) -> OptionsMapT:
     Returns:
         An updated options map.
     """
-    if "dependencies" in options:
-        deps = {}
+    deps = {}
+    with contextlib.suppress(KeyError):
         for k, v in options["dependencies"].items():
             if isinstance(v, collections.abc.Mapping):
                 deps[k] = v
-        options["dependencies"] = deps
+
+    tools = {}
+    with contextlib.suppress(KeyError):
+        os = platform.system().lower()
+        for k, v in options["toolchains"].items():
+            with contextlib.suppress(TypeError, KeyError):
+                tools[k] = v[os]
+
+    options["bootstrap"] = {"dependencies": deps, "toolchains": tools}
+
     return options
 
 
@@ -66,9 +89,16 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     result = []
     result += _setup_bob(env["root_path"])
 
-    if "dependencies" in options:
+    with contextlib.suppress(KeyError):
         result += _gather_dependencies(
-            options["dependencies"], env["dependencies_path"]
+            options["bootstrap"]["dependencies"],
+            env["dependencies_path"],
+        )
+
+    with contextlib.suppress(KeyError):
+        result += _gather_toolchain(
+            options["bootstrap"]["toolchains"],
+            env["toolchains_path"],
         )
 
     return result
@@ -99,15 +129,49 @@ def _gather_dependencies(
     result = []
     for name, options in deps.items():
         logging.info("Found external dependecy: %s", name)
+        rep_path = output_path / name
+
+        if not rep_path.exists():
+            result.append(["git", "clone", options["repository"], str(rep_path)])
+
         result.append(
-            [
-                "git",
-                "clone",
-                "-b",
-                options["tag"],
-                options["repository"],
-                str(output_path / name),
-            ]
+            ["cmake", "-E", "chdir", str(rep_path), "git", "checkout", options["tag"]]
         )
+
+    return result
+
+
+def _get_package(url: str, output_path: pathlib.Path) -> pathlib.Path:
+    path = output_path / pathlib.Path(url).name
+    logging.info("Retrieving: %s", pathlib.Path(url).name)
+
+    if not path.exists():
+        logging.info("Downloading: %s", url)
+        urllib.request.urlretrieve(url, path)
+    else:
+        logging.info("Archive found: %s", path)
+
+    return path
+
+
+def _extract_package(archive, output_path: pathlib.Path):
+    logging.info("Extracting: %s to %s", archive, output_path)
+    if not (output_path / archive.name).exists():
+        shutil.unpack_archive(archive, output_path)
+
+
+def _gather_toolchain(
+    toolchains: typing.Mapping[str, str], output_path: pathlib.Path
+) -> CommandListT:
+    logging.debug("Ensure toolchain folder: %s", output_path)
+    output_path.mkdir(parents=True, exist_ok=True)
+    archive_path = output_path / "download"
+    archive_path.mkdir(parents=True, exist_ok=True)
+
+    result = []
+    for name, url in toolchains.items():
+        logging.info("Found toolchain dependency: %s", name)
+        archive = _get_package(url, archive_path)
+        _extract_package(archive, output_path)
 
     return result

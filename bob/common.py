@@ -1,8 +1,9 @@
 """Module with functionality shared between various modules."""
+import contextlib
 import pathlib
 import typing
 
-from bob.api import BuildTarget
+from bob.typehints import OptionsMapT
 
 
 def determine_output_folder(options: typing.Mapping[str, str]) -> str:
@@ -14,11 +15,31 @@ def determine_output_folder(options: typing.Mapping[str, str]) -> str:
     Returns:
         The output' folder name for the given options.
     """
-    return f"{options['target']}-{options['config']}".lower()
+    return f"{options['target'].name}-{options['config']}".lower()
+
+
+def parse_options(options: OptionsMapT) -> OptionsMapT:
+    """Update the options map.
+
+    Args:
+        options: set of options to take into account.
+
+    Returns:
+        An updated options map.
+    """
+    images = {}
+    with contextlib.suppress(KeyError):
+        for k, v in options["toolchains"].items():
+            with contextlib.suppress(TypeError, KeyError):
+                images[k] = v["container"]
+
+    options["containers"] = images
+
+    return options
 
 
 def generate_container_command(
-    target: BuildTarget, cwd: pathlib.Path
+    options: OptionsMapT, cwd: pathlib.Path
 ) -> typing.List[str]:
     """Generate a Docker command to prepend the build command.
 
@@ -28,19 +49,16 @@ def generate_container_command(
 
     Returns:
         List representing a single command, ready to be passed to subprocess.run.
-
-    Todo:
-        - targets may have more compilers
-        - use containers from TOML file
     """
-    if target == BuildTarget.Linux:
+    try:
+        target = options["build"]["target"].name.lower()
         return [
             "docker",
             "run",
             "--rm",
             "-v",
             f"{cwd}:/work/",
-            "renemoll/builder_clang",
+            options["containers"][target],
         ]
-
-    return []
+    except KeyError:
+        return []
