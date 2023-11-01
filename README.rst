@@ -2,8 +2,8 @@
 Meet Bob
 ========
 
-.. image:: https://github.com/renemoll/bob/actions/workflows/unit-testing.yml/badge.svg
-   :target: https://github.com/renemoll/bob/actions/workflows/unit-testing.yml
+.. image:: https://github.com/renemoll/bob/actions/workflows/unit-testing.yaml/badge.svg
+   :target: https://github.com/renemoll/bob/actions/workflows/unit-testing.yaml
    :alt: Unit tests
 .. image:: https://coveralls.io/repos/github/renemoll/bob/badge.svg?branch=main
    :target: https://coveralls.io/github/renemoll/bob?branch=main
