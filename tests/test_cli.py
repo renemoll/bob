@@ -80,7 +80,7 @@ def test_cli_configure_default(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == 0
-    subprocess.run.assert_called_once_with(
+    subprocess.run.assert_any_call(
         [
             "cmake",
             "-B",
@@ -115,7 +115,7 @@ def test_cli_configure_release(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == 0
-    subprocess.run.assert_called_once_with(
+    subprocess.run.assert_any_call(
         [
             "cmake",
             "-B",
@@ -150,7 +150,7 @@ def test_cli_configure_debug(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == 0
-    subprocess.run.assert_called_once_with(
+    subprocess.run.assert_any_call(
         [
             "cmake",
             "-B",
@@ -188,7 +188,7 @@ def test_cli_configure_linux_default(
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_called_once_with(
+    subprocess.run.assert_any_call(
         [
             "docker",
             "run",
@@ -234,7 +234,7 @@ def test_cli_configure_linux_release(
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_called_once_with(
+    subprocess.run.assert_any_call(
         [
             "docker",
             "run",
@@ -248,8 +248,6 @@ def test_cli_configure_linux_release(
             "-S",
             ".",
             "-DCMAKE_BUILD_TYPE=Release",
-            # "-G",
-            # "Ninja",
         ],
         check=True,
     )
@@ -280,7 +278,7 @@ def test_cli_configure_linux_debug(
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_called_once_with(
+    subprocess.run.assert_any_call(
         [
             "docker",
             "run",
@@ -294,8 +292,6 @@ def test_cli_configure_linux_debug(
             "-S",
             ".",
             "-DCMAKE_BUILD_TYPE=Debug",
-            # "-G",
-            # "Ninja",
         ],
         check=True,
     )
@@ -645,8 +641,9 @@ def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == os.EX_SOFTWARE
+    cwd = pathlib.Path.cwd()
     subprocess.run.assert_called_once_with(
-        ["cmake", "-B", "build/native-debug", "-S", ".", "-DCMAKE_BUILD_TYPE=Debug"],
+        ["cmake", "-E", "make_directory", f"{cwd}/cmake"],
         check=True,
     )
 

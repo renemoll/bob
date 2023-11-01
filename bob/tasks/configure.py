@@ -17,7 +17,7 @@ def depends_on() -> typing.List[Command]:
     Returns:
         A list of commands.
     """
-    return []
+    return [Command.Bootstrap]
 
 
 def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:

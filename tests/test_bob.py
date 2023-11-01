@@ -26,7 +26,7 @@ def test_bob_configure(mocker: pytest_mock.MockerFixture) -> None:
     bob.bob(cmd, options)
 
     # 3. Verify
-    subprocess.run.assert_called_once_with(
+    subprocess.run.assert_any_call(
         ["cmake", "-B", "build/native-debug", "-S", ".", "-DCMAKE_BUILD_TYPE=Debug"],
         check=True,
     )

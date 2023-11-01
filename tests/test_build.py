@@ -2,7 +2,7 @@
 import pathlib
 
 import bob
-from bob.api import generate_targets
+from bob.api import generate_targets, Command
 from bob.common import parse_options
 from bob.tasks.build import depends_on, generate_commands
 
@@ -11,7 +11,7 @@ def test_dependency() -> None:
     """Verify build's dependecies."""
     result = depends_on()
 
-    assert result == [bob.Command.Configure]
+    assert result == [Command.Configure]
 
 
 def test_build_default_options(tmp_path: pathlib.Path) -> None:
