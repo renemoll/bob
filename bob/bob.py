@@ -12,6 +12,7 @@ import types
 import typing
 
 from bob.api import Command
+from bob.common import parse_options
 from bob.modules import get_task
 from bob.typehints import OptionsMapT
 
@@ -70,6 +71,9 @@ def bob(command: Command, options: OptionsMapT) -> None:
     Args:
         command: a command to execute
         options: a map of options to pass to the command
+
+    Todo:
+        - split options into given and parsed dicts.
     """
     logging.info("Execting command: %s", command)
     logging.debug("Options: %s", options)
@@ -83,6 +87,7 @@ def bob(command: Command, options: OptionsMapT) -> None:
     env = {
         "root_path": cwd,
     }
+    options = parse_options(options)
     for task in tasks:
         module = get_task(task)
 
@@ -92,6 +97,7 @@ def bob(command: Command, options: OptionsMapT) -> None:
         try:
             mod_opts = module.parse_options(options)
         except AttributeError:
+            logging.exception("Error processing options")
             mod_opts = options
 
         cmd_list = module.generate_commands(mod_opts, env)

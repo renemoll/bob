@@ -1,6 +1,7 @@
 """Collection of types used in the API."""
 
 import enum
+import typing
 
 
 class Command(enum.Enum):
@@ -39,21 +40,7 @@ class BuildConfig(enum.Enum):
         return self.name
 
 
-class BuildTarget(enum.Enum):
-    """Valid targets for the codebase.
-
-    Todo:
-     - generate based on toolchain/config
-    """
-
-    Native = 1
-    Linux = 2
-    Stm32 = 3
-
-    def __str__(self: "BuildTarget") -> str:
-        """Convert a BuildTarget to string.
-
-        Returns:
-            A string representation of a specific BuildTarget.
-        """
-        return self.name
+def generate_targets(targets: typing.Sequence[str]) -> enum.Enum:
+    """Generate an Enum for the available targers."""
+    names = [x.capitalize() for x in targets]
+    return enum.Enum("BuildTarget", names)

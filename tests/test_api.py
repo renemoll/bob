@@ -1,6 +1,6 @@
 """Test API types."""
 
-from bob.api import BuildConfig, BuildTarget, Command
+from bob.api import BuildConfig, Command
 
 
 def test_command_to_string() -> None:
@@ -11,8 +11,3 @@ def test_command_to_string() -> None:
 def test_buildconfig_to_string() -> None:
     """Verify BuildConfig type can be converted to string (note the case)."""
     assert str(BuildConfig.Release) == "Release"
-
-
-def test_buildtarget_to_string() -> None:
-    """Verify BuildTarget type can be converted to string (note the case)."""
-    assert str(BuildTarget.Native) == "Native"

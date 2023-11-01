@@ -2,6 +2,8 @@
 import pathlib
 
 import bob
+from bob.api import generate_targets
+from bob.common import parse_options
 from bob.tasks.configure import depends_on, generate_commands, parse_env
 
 
@@ -19,35 +21,11 @@ def test_configure_default_options(tmp_path: pathlib.Path) -> None:
     - Actually default the options?
     """
     # 1. Prepare
+    targets = generate_targets(["native"])
     options = {
-        "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Native},
-        "use-container": False,
+        "build": {"config": bob.BuildConfig.Release, "target": targets.Native},
     }
-    env = {"root_path": tmp_path}
-    env = parse_env(env, options)
-
-    # 2. Execute
-    result = generate_commands(options, env)
-
-    # 3. Verify
-    assert len(result) == 1
-    assert result[0] == [
-        "cmake",
-        "-B",
-        "build/native-release",
-        "-S",
-        ".",
-        "-DCMAKE_BUILD_TYPE=Release",
-    ]
-
-
-def test_configure_with_container_native(tmp_path: pathlib.Path) -> None:
-    """Given a build request with a native target, `use-container` has no impact."""
-    # 1. Prepare
-    options = {
-        "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Native},
-        "use-container": True,
-    }
+    options = parse_options(options)
     env = {"root_path": tmp_path}
     env = parse_env(env, options)
 
@@ -67,12 +45,15 @@ def test_configure_with_container_native(tmp_path: pathlib.Path) -> None:
 
 
 def test_configure_with_container_linux_clang(tmp_path: pathlib.Path) -> None:
-    """Verify `use-container` triggers the use of a Linux container."""
+    """Verify Linux build triggers the use of a Linux container."""
     # 1. Prepare
+    targets = generate_targets(["native", "linux"])
     options = {
-        "build": {"config": bob.BuildConfig.Release, "target": bob.BuildTarget.Linux},
-        "use-container": True,
+        "build": {"config": bob.BuildConfig.Release, "target": targets.Linux},
+        "toolchains": {"linux": {"container": "renemoll/builder_clang"}},
+        "targets": {"linux": {"toolchain": "linux"}},
     }
+    options = parse_options(options)
     env = {"root_path": tmp_path}
     env = parse_env(env, options)
 
@@ -94,6 +75,6 @@ def test_configure_with_container_linux_clang(tmp_path: pathlib.Path) -> None:
         "-S",
         ".",
         "-DCMAKE_BUILD_TYPE=Release",
-        "-G",
-        "Ninja",
+        # "-G",
+        # "Ninja",
     ]

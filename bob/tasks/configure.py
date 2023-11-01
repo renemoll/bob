@@ -6,7 +6,7 @@ import logging
 import pathlib
 import typing
 
-from bob.api import BuildTarget, Command
+from bob.api import Command
 from bob.common import determine_output_folder, generate_container_command
 from bob.typehints import CommandListT, EnvMapT, OptionsMapT
 
@@ -52,11 +52,7 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
         - split target and compiler (should be a matrix [target vs compiler])
     """
     steps = []
-    if options["use-container"]:
-        steps += generate_container_command(
-            options["build"]["target"], env["root_path"]
-        )
-
+    steps += generate_container_command(options, env["root_path"])
     steps += _generate_build_system_command(
         options, env["build_path"], env["source_path"]
     )
@@ -67,7 +63,7 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
 def _generate_build_system_command(
     options: OptionsMapT, output_path: pathlib.Path, source_path: pathlib.Path
 ) -> typing.List[str]:
-    cmd = [
+    return [
         "cmake",
         "-B",
         str(output_path),
@@ -75,11 +71,3 @@ def _generate_build_system_command(
         str(source_path),
         f"-DCMAKE_BUILD_TYPE={options['build']['config']}",
     ]
-
-    if options["build"]["target"] in (BuildTarget.Linux, BuildTarget.Stm32):
-        cmd += [
-            "-G",
-            "Ninja",
-        ]
-
-    return cmd

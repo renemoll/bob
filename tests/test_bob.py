@@ -5,7 +5,7 @@ import subprocess
 import pytest_mock
 
 import bob
-from bob.api import BuildConfig, BuildTarget
+from bob.api import BuildConfig, generate_targets
 
 
 def test_bob_configure(mocker: pytest_mock.MockerFixture) -> None:
@@ -14,12 +14,12 @@ def test_bob_configure(mocker: pytest_mock.MockerFixture) -> None:
     mocker.patch("subprocess.run")
 
     cmd = bob.Command.Configure
+    targets = generate_targets(["native"])
     options = {
         "build": {
             "config": BuildConfig.Debug,
-            "target": BuildTarget.Native,
+            "target": targets.Native,
         },
-        "use-container": False,
     }
 
     # 2. Execute
@@ -42,12 +42,12 @@ def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
     mocker.patch("subprocess.run")
 
     cmd = bob.Command.Build
+    targets = generate_targets(["native"])
     options = {
         "build": {
             "config": BuildConfig.Release,
-            "target": BuildTarget.Native,
+            "target": targets.Native,
         },
-        "use-container": False,
     }
 
     # 2. Execute

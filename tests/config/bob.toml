@@ -5,3 +5,9 @@ folder = "external"
 [dependencies.test]
 repository = "https://github.com/renemoll/bob-cmake.git"
 tag = "master"
+
+[toolchains.linux]
+container = "renemoll/builder_clang"
+
+[targets.linux]
+toolchain = "linux"
