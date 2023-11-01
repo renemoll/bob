@@ -297,6 +297,53 @@ def test_cli_configure_linux_debug(
     )
 
 
+def test_cli_configure_stm32_default(
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path  # noqa: ARG001
+) -> None:
+    """Verify the CLI performs the correct argument conversion for a configure."""
+    # 1. Prepare
+    mocker.patch("subprocess.run")
+    mocker.patch("docopt.docopt")
+
+    docopt.docopt.return_value = {
+        "--help": False,
+        "--version": False,
+        "<target>": "stm32",
+        "bootstrap": False,
+        "build": False,
+        "configure": True,
+        "debug": False,
+        "release": False,
+    }
+
+    # 2. Execute
+    result = main()
+
+    # 3. Verify
+    assert result == 0
+    cwd = pathlib.Path.cwd()
+    subprocess.run.assert_any_call(
+        [
+            "docker",
+            "run",
+            "--rm",
+            "-v",
+            f"{cwd}:/work/",
+            "renemoll/builder_arm_gcc",
+            "cmake",
+            "-B",
+            "build/stm32-release",
+            "-S",
+            ".",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DSTM32F4",
+            "-G",
+            "Ninja",
+        ],
+        check=True,
+    )
+
+
 def test_cli_configure_invalid_target(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare

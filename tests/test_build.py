@@ -2,7 +2,7 @@
 import pathlib
 
 import bob
-from bob.api import generate_targets, Command
+from bob.api import Command, generate_targets
 from bob.common import parse_options
 from bob.tasks.build import depends_on, generate_commands
 

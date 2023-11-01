@@ -2,6 +2,7 @@
 
 Contains the task and helpers to configure a build.
 """
+import contextlib
 import logging
 import pathlib
 import typing
@@ -37,6 +38,30 @@ def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
     return env
 
 
+def parse_options(options: OptionsMapT) -> OptionsMapT:
+    """Update the options map.
+
+    Args:
+        options: set of options to take into account.
+
+    Returns:
+        An updated options map.
+    """
+    target = options["build"]["target"].name.lower()
+    result = []
+    with contextlib.suppress(KeyError):
+        addopts = options["targets"][target]["additional_options"]["configuration"]
+        result += addopts.split(" ")
+
+    with contextlib.suppress(KeyError):
+        addopts = options["toolchains"][target]["additional_options"]["configuration"]
+        result += addopts.split(" ")
+
+    options["configure"] = {"additional_options": result}
+
+    return options
+
+
 def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     """Generate a set of configure the build.
 
@@ -56,6 +81,9 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     steps += _generate_build_system_command(
         options, env["build_path"], env["source_path"]
     )
+
+    with contextlib.suppress(KeyError):
+        steps += options["configure"]["additional_options"]
 
     return [steps]
 

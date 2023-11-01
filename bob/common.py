@@ -27,13 +27,9 @@ def parse_options(options: OptionsMapT) -> OptionsMapT:
     Returns:
         An updated options map.
     """
-    images = {}
     with contextlib.suppress(KeyError):
-        for k, v in options["toolchains"].items():
-            with contextlib.suppress(TypeError, KeyError):
-                images[k] = v["container"]
-
-    options["containers"] = images
+        target = options["build"]["target"].name.lower()
+        options["container"] = options["toolchains"][target]["container"]
 
     return options
 
@@ -51,14 +47,13 @@ def generate_container_command(
         List representing a single command, ready to be passed to subprocess.run.
     """
     try:
-        target = options["build"]["target"].name.lower()
         return [
             "docker",
             "run",
             "--rm",
             "-v",
             f"{cwd}:/work/",
-            options["containers"][target],
+            options["container"],
         ]
     except KeyError:
         return []

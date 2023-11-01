@@ -105,7 +105,7 @@ def _determine_options(arguments: typing.Mapping[str, ArgsT]) -> OptionsMapT:
     targets = ["native"]
     with contextlib.suppress(KeyError):
         targets += list(options["targets"].keys())
-    options["targets"] = generate_targets(targets)
+    options["build_targets"] = generate_targets(targets)
 
     user_options = {
         "build": {
@@ -132,11 +132,11 @@ def _determine_build_target(
 ) -> BuildTargetT:
     try:
         target = arguments["<target>"].lower().capitalize()  # type: ignore [attr-defined]
-        for x in options["targets"]:
+        for x in options["build_targets"]:
             if x.name == target:
                 return x
 
         raise ValueError(f"Invalid target specified: {target}")
     except AttributeError:
         logging.info("No build target selected, defaulting to native build target")
-        return options["targets"].Native
+        return options["build_targets"].Native
