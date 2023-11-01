@@ -41,5 +41,6 @@ class BuildConfig(enum.Enum):
 
 
 def generate_targets(targets: typing.Sequence[str]) -> enum.Enum:
+    """Generate an Enum for the available targers."""
     names = [x.capitalize() for x in targets]
     return enum.Enum("BuildTarget", names)

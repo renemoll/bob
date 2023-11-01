@@ -6,7 +6,7 @@ import typing
 from bob.typehints import OptionsMapT
 
 
-def determine_output_folder(options: typing.Mapping[str, str]) -> str:
+def determine_output_folder(options: OptionsMapT) -> str:
     """Generate the output path based on project settings.
 
     Args:
@@ -44,7 +44,7 @@ def generate_container_command(
     """Generate a Docker command to prepend the build command.
 
     Args:
-        target: the target to compile for.
+        options: set of options to take into account.
         cwd: the path to the codebase.
 
     Returns:

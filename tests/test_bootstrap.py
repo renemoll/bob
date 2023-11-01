@@ -145,6 +145,7 @@ def test_bootstrap_external_git_repo_already_present(tmp_path: pathlib.Path) -> 
 def test_bootstrap_custom_toolchain(
     mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path
 ) -> None:
+    """Verify toolchain download and unpack."""
     # 1. Prepare
     mocker.patch("shutil.unpack_archive")
     mocker.patch("urllib.request.urlretrieve")
@@ -190,6 +191,7 @@ def test_bootstrap_custom_toolchain(
 def test_bootstrap_custom_toolchain_already_downloaded(
     mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path
 ) -> None:
+    """Verify toolchain download is skipped when the archive is present."""
     # 1. Prepare
     mocker.patch("shutil.unpack_archive")
     mocker.patch("urllib.request.urlretrieve")
@@ -239,6 +241,7 @@ def test_bootstrap_custom_toolchain_already_downloaded(
 def test_bootstrap_custom_toolchain_already_present(
     mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path
 ) -> None:
+    """Verify toolchain download and unpack is skipped when the toolchain is present."""
     # 1. Prepare
     mocker.patch("shutil.unpack_archive")
     mocker.patch("urllib.request.urlretrieve")

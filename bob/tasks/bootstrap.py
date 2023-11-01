@@ -8,9 +8,9 @@ import contextlib
 import logging
 import pathlib
 import platform
+import shutil
 import typing
 import urllib.request
-import shutil
 
 from bob.api import Command
 from bob.typehints import CommandListT, EnvMapT, OptionsMapT
@@ -96,7 +96,7 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
         )
 
     with contextlib.suppress(KeyError):
-        result += _gather_toolchain(
+        _gather_toolchain(
             options["bootstrap"]["toolchains"],
             env["toolchains_path"],
         )
@@ -147,7 +147,14 @@ def _get_package(url: str, output_path: pathlib.Path) -> pathlib.Path:
 
     if not path.exists():
         logging.info("Downloading: %s", url)
-        urllib.request.urlretrieve(url, path)
+
+        #
+        # Yes, using urllib.request but limiting the protocols beforehand.
+        #
+        if not url.startswith(("http:", "https:")):
+            raise ValueError("URL must start with 'http:' or 'https:'")
+
+        urllib.request.urlretrieve(url, path)  # noqa: S310
     else:
         logging.info("Archive found: %s", path)
 
@@ -155,7 +162,7 @@ def _get_package(url: str, output_path: pathlib.Path) -> pathlib.Path:
 
 
 def _remove_suffix_from_archive_name(name: str) -> str:
-    def format_to_suffix(x):
+    def format_to_suffix(x: str) -> str:
         if "tar" in x and x.find("tar") > 0:
             return f".tar.{x.replace('tar', '')}"
         return f".{x}"
@@ -169,7 +176,7 @@ def _remove_suffix_from_archive_name(name: str) -> str:
     raise ValueError("Unsupported archive type")
 
 
-def _extract_package(archive, output_path: pathlib.Path):
+def _extract_package(archive: pathlib.Path, output_path: pathlib.Path) -> None:
     logging.info("Extracting: %s to %s", archive, output_path)
     expected = output_path / _remove_suffix_from_archive_name(archive.name)
     if not expected.exists():
@@ -178,16 +185,13 @@ def _extract_package(archive, output_path: pathlib.Path):
 
 def _gather_toolchain(
     toolchains: typing.Mapping[str, str], output_path: pathlib.Path
-) -> CommandListT:
+) -> None:
     logging.debug("Ensure toolchain folder: %s", output_path)
     output_path.mkdir(parents=True, exist_ok=True)
     archive_path = output_path / "download"
     archive_path.mkdir(parents=True, exist_ok=True)
 
-    result = []
     for name, url in toolchains.items():
         logging.info("Found toolchain dependency: %s", name)
         archive = _get_package(url, archive_path)
         _extract_package(archive, output_path)
-
-    return result

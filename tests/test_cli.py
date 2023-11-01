@@ -12,7 +12,8 @@ from bob.cli import main
 
 
 @pytest.fixture(scope="session")
-def valid_config_path(tmp_path_factory):
+def valid_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+    """Fixture for a working folder with a valid configuration file."""
     work = tmp_path_factory.mktemp("work")
     os.chdir(str(work))
 
@@ -163,7 +164,7 @@ def test_cli_configure_debug(mocker: pytest_mock.MockerFixture) -> None:
 
 
 def test_cli_configure_linux_default(
-    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path  # noqa: ARG001
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
@@ -209,7 +210,7 @@ def test_cli_configure_linux_default(
 
 
 def test_cli_configure_linux_release(
-    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path  # noqa: ARG001
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
@@ -255,7 +256,7 @@ def test_cli_configure_linux_release(
 
 
 def test_cli_configure_linux_debug(
-    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path  # noqa: ARG001
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
@@ -440,9 +441,7 @@ def test_cli_build_debug(mocker: pytest_mock.MockerFixture) -> None:
     )
 
 
-def test_cli_build_linux_default(
-    mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path
-) -> None:
+def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
     mocker.patch("subprocess.run")
@@ -501,7 +500,7 @@ def test_cli_build_linux_default(
 
 
 def test_cli_build_linux_release(
-    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path  # noqa: ARG001
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
@@ -561,7 +560,7 @@ def test_cli_build_linux_release(
 
 
 def test_cli_build_linux_debug(
-    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path  # noqa: ARG001
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare

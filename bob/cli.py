@@ -28,6 +28,7 @@ from bob import __version__
 from bob.api import BuildConfig, Command, generate_targets
 from bob.bob import bob
 from bob.compat import EX_DATAERR, EX_OK, EX_SOFTWARE
+from bob.typehints import BuildTargetT, OptionsMapT
 
 ArgsT = typing.TypeVar("ArgsT", None, bool, str)
 
@@ -69,9 +70,7 @@ def _determine_command(arguments: typing.Mapping[str, ArgsT]) -> Command:
     return Command.Build
 
 
-def _determine_options(
-    arguments: typing.Mapping[str, ArgsT]
-) -> typing.MutableMapping[str, typing.Any]:
+def _determine_options(arguments: typing.Mapping[str, ArgsT]) -> OptionsMapT:
     """Returns map with options based on the given arguments.
 
     Args:
@@ -84,7 +83,8 @@ def _determine_options(
         ValueError: upon errors parsing a `bob.toml` file.
 
     Todo:
-        - settings such as toolchains and targets should be filtered such that only the active/relevant settings remain.
+        - settings such as toolchains and targets should be filtered such that only
+          the active/relevant settings remain.
         - toolchain may have container and archive?
     """
     options = {}
@@ -128,8 +128,8 @@ def _determine_build_config(arguments: typing.Mapping[str, ArgsT]) -> BuildConfi
 
 
 def _determine_build_target(
-    arguments: typing.Mapping[str, ArgsT], options
-) -> "BuildTarget":
+    arguments: typing.Mapping[str, ArgsT], options: OptionsMapT
+) -> BuildTargetT:
     try:
         target = arguments["<target>"].lower().capitalize()  # type: ignore [attr-defined]
         for x in options["targets"]:

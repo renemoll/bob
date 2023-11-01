@@ -63,7 +63,7 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
 def _generate_build_system_command(
     options: OptionsMapT, output_path: pathlib.Path, source_path: pathlib.Path
 ) -> typing.List[str]:
-    cmd = [
+    return [
         "cmake",
         "-B",
         str(output_path),
@@ -71,11 +71,3 @@ def _generate_build_system_command(
         str(source_path),
         f"-DCMAKE_BUILD_TYPE={options['build']['config']}",
     ]
-
-    # if options["build"]["target"] in (BuildTarget.Linux, BuildTarget.Stm32):
-    #     cmd += [
-    #         "-G",
-    #         "Ninja",
-    #     ]
-
-    return cmd
