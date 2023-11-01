@@ -154,9 +154,25 @@ def _get_package(url: str, output_path: pathlib.Path) -> pathlib.Path:
     return path
 
 
+def _remove_suffix_from_archive_name(name: str) -> str:
+    def format_to_suffix(x):
+        if "tar" in x and x.find("tar") > 0:
+            return f".tar.{x.replace('tar', '')}"
+        return f".{x}"
+
+    formats = [format_to_suffix(x[0]) for x in shutil.get_archive_formats()]
+
+    for x in formats:
+        if name.endswith(x):
+            return name.replace(x, "")
+
+    raise ValueError("Unsupported archive type")
+
+
 def _extract_package(archive, output_path: pathlib.Path):
     logging.info("Extracting: %s to %s", archive, output_path)
-    if not (output_path / archive.name).exists():
+    expected = output_path / _remove_suffix_from_archive_name(archive.name)
+    if not expected.exists():
         shutil.unpack_archive(archive, output_path)
 
 
