@@ -100,7 +100,12 @@ def bob(command: Command, options: OptionsMapT) -> None:
             logging.exception("Error processing options")
             mod_opts = options
 
-        cmd_list = module.generate_commands(mod_opts, env)
+        try:
+            cmd_list = module.generate_commands(mod_opts, env)
+        except:
+            logging.exception("Valued to generate commansd for the current task")
+            break
+
         for cmd in cmd_list:
             logging.debug(" ".join(cmd))
             with ExecutionTimer() as timer:

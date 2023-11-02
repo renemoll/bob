@@ -4,6 +4,7 @@ import pathlib
 import shutil
 import urllib.request
 
+import pytest
 import pytest_mock
 
 import bob
@@ -284,3 +285,27 @@ def test_bootstrap_custom_toolchain_already_present(
     assert len(result) == nof_commands
     urllib.request.urlretrieve.assert_not_called()
     shutil.unpack_archive.assert_not_called()
+
+
+def test_bootstrap_invalid_toolchain_url(tmp_path: pathlib.Path) -> None:
+    """Verify bootstrap will clone extrnal repositories."""
+    # 1. Prepare
+    options = {
+        "toolchains": {
+            "gcc_arm": {
+                "windows": "file://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-mingw-w64-i686-arm-none-eabi.zip",
+                "linux": "file://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz",
+            },
+        }
+    }
+    options = parse_options(options)
+
+    cwd = tmp_path / "work"
+    cwd.mkdir()
+    os.chdir(str(cwd))
+
+    env = parse_env({"root_path": cwd}, options)
+
+    # 2. Execute
+    with pytest.raises(ValueError):
+        result = generate_commands(options, env)

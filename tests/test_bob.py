@@ -68,3 +68,30 @@ def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
     subprocess.run.assert_any_call(
         ["cmake", "--build", "build/native-release"], check=True
     )
+
+
+def test_bob_invalid_toolchain_url(mocker: pytest_mock.MockerFixture) -> None:
+    # 1. Prepare
+    mocker.patch("subprocess.run")
+
+    cmd = bob.Command.Build
+    targets = generate_targets(["native", "stm32"])
+    options = {
+        "build": {
+            "config": BuildConfig.Release,
+            "target": targets.Stm32,
+        },
+        "toolchains": {
+            "gcc_arm": {
+                "windows": "file://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-mingw-w64-i686-arm-none-eabi.zip",
+                "linux": "file://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz",
+            },
+        },
+        "targets": {"stm32": {"toolchain": "gcc_arm"}},
+    }
+
+    # 2. Execute
+    bob.bob(cmd, options)
+
+    # 3. Verify
+    subprocess.run.assert_not_called()
