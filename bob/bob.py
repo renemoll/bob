@@ -98,6 +98,8 @@ def bob(command: Command, input_options: OptionsMapT) -> None:
         try:
             module.parse_options(input_options, options)
         except AttributeError:
+            pass
+        except ValueError:
             logging.exception("Error processing options")
 
         try:
