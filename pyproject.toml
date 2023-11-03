@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "bob-the-developer"
 description = "A collection of scripts to build C++ projects"
-dynamic = ["version"]
+version = "0.2.3"
 readme = "README.rst"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}
