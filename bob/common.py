@@ -1,9 +1,12 @@
 """Module with functionality shared between various modules."""
 import contextlib
+import enum
+import logging
 import pathlib
 import typing
 
-from bob.typehints import OptionsMapT
+from bob.api import BuildConfig
+from bob.typehints import BuildTargetT, OptionsMapT
 
 
 def determine_output_folder(options: OptionsMapT) -> str:
@@ -15,7 +18,7 @@ def determine_output_folder(options: OptionsMapT) -> str:
     Returns:
         The output' folder name for the given options.
     """
-    return f"{options['target'].name}-{options['config']}".lower()
+    return f"{options['build_target'].name}-{options['build_config']}".lower()
 
 
 def parse_options(options: OptionsMapT) -> OptionsMapT:
@@ -27,11 +30,51 @@ def parse_options(options: OptionsMapT) -> OptionsMapT:
     Returns:
         An updated options map.
     """
-    with contextlib.suppress(KeyError):
-        target = options["build"]["target"].name.lower()
-        options["container"] = options["toolchains"][target]["container"]
+    result = {
+        "build_config": _determine_config(options),
+        "build_target": _determine_build_target(options),
+    }
 
-    return options
+    with contextlib.suppress(KeyError):
+        target = result["build_target"].name.lower()  # type: ignore [attr-defined]
+        result["container"] = options["toolchains"][target]["container"]
+
+    return result
+
+
+def _determine_config(options: OptionsMapT) -> BuildConfig:
+    try:
+        config = options["config"].lower()
+        if config == "debug":
+            return BuildConfig.Debug
+        return BuildConfig.Release  # noqa: TRY300
+    except KeyError:
+        logging.info("No build config selected, defaulting to release build config")
+        return BuildConfig.Release
+
+
+def generate_targets(targets: typing.Sequence[str]) -> enum.Enum:
+    """Generate an Enum for the available targers."""
+    names = [x.capitalize() for x in targets]
+    return enum.Enum("BuildTarget", names)
+
+
+def _determine_build_target(options: OptionsMapT) -> BuildTargetT:
+    targets = ["native"]
+    with contextlib.suppress(KeyError):
+        targets += list(options["targets"].keys())
+    build_targets = generate_targets(targets)
+
+    try:
+        target = options["target"].lower().capitalize()
+        for x in build_targets:  # type: ignore [attr-defined]
+            if x.name == target:
+                return x
+
+        raise ValueError(f"Invalid target specified: {target}")
+    except KeyError:
+        logging.info("No build target selected, defaulting to native build target")
+        return build_targets.Native  # type: ignore [attr-defined]
 
 
 def generate_container_command(

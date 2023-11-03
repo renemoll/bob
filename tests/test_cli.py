@@ -641,8 +641,6 @@ def test_cli_build_linux_debug(
             "-S",
             ".",
             "-DCMAKE_BUILD_TYPE=Debug",
-            # "-G",
-            # "Ninja",
         ],
         check=True,
     )

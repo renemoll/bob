@@ -15,7 +15,6 @@ Options:
     -h --help        Show this screen.
     --version        Show version.
 """
-import contextlib
 import logging
 import pathlib
 import subprocess
@@ -25,10 +24,10 @@ import docopt
 import toml
 
 from bob import __version__
-from bob.api import BuildConfig, Command, generate_targets
+from bob.api import Command
 from bob.bob import bob
 from bob.compat import EX_DATAERR, EX_OK, EX_SOFTWARE
-from bob.typehints import BuildTargetT, OptionsMapT
+from bob.typehints import OptionsMapT
 
 ArgsT = typing.TypeVar("ArgsT", None, bool, str)
 
@@ -50,11 +49,14 @@ def main() -> int:
         command = _determine_command(arguments)
         options = _determine_options(arguments)
     except ValueError:
-        logging.exception("Exception caught parsing command line input")
+        logging.exception("Exception caught parsing input")
         return EX_DATAERR
 
     try:
         bob(command, options)
+    except ValueError:
+        logging.exception("Exception caught parsing input")
+        return EX_DATAERR
     except subprocess.CalledProcessError:
         logging.exception("Exception caught executing commands")
         return EX_SOFTWARE
@@ -81,13 +83,11 @@ def _determine_options(arguments: typing.Mapping[str, ArgsT]) -> OptionsMapT:
 
     Raises:
         ValueError: upon errors parsing a `bob.toml` file.
-
-    Todo:
-        - settings such as toolchains and targets should be filtered such that only
-          the active/relevant settings remain.
-        - toolchain may have container and archive?
     """
-    options = {}
+    options = {
+        "config": _determine_build_config(arguments),
+        "target": _determine_build_target(arguments),
+    }
 
     cwd = pathlib.Path.cwd()
     toml_file = cwd / "bob.toml"
@@ -102,41 +102,22 @@ def _determine_options(arguments: typing.Mapping[str, ArgsT]) -> OptionsMapT:
         logging.exception("Exception caught parsing %s", toml_file)
         raise ValueError from ex
 
-    targets = ["native"]
-    with contextlib.suppress(KeyError):
-        targets += list(options["targets"].keys())
-    options["build_targets"] = generate_targets(targets)
-
-    user_options = {
-        "build": {
-            "config": _determine_build_config(arguments),
-            "target": _determine_build_target(arguments, options),
-        }
-    }
-    options.update(user_options)
     return options
 
 
-def _determine_build_config(arguments: typing.Mapping[str, ArgsT]) -> BuildConfig:
+def _determine_build_config(arguments: typing.Mapping[str, ArgsT]) -> str:
     if arguments["release"]:
-        return BuildConfig.Release
+        return "release"
     if arguments["debug"]:
-        return BuildConfig.Debug
+        return "debug"
 
     logging.info("No build config selected, defaulting to release build config")
-    return BuildConfig.Release
+    return "release"
 
 
-def _determine_build_target(
-    arguments: typing.Mapping[str, ArgsT], options: OptionsMapT
-) -> BuildTargetT:
+def _determine_build_target(arguments: typing.Mapping[str, ArgsT]) -> str:
     try:
-        target = arguments["<target>"].lower().capitalize()  # type: ignore [attr-defined]
-        for x in options["build_targets"]:
-            if x.name == target:
-                return x
-
-        raise ValueError(f"Invalid target specified: {target}")
+        return arguments["<target>"].lower()  # type: ignore [attr-defined]
     except AttributeError:
         logging.info("No build target selected, defaulting to native build target")
-        return options["build_targets"].Native
+        return "native"

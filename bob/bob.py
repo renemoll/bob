@@ -65,18 +65,19 @@ class ExecutionTimer(contextlib.AbstractContextManager):
         return False
 
 
-def bob(command: Command, options: OptionsMapT) -> None:
+def bob(command: Command, input_options: OptionsMapT) -> None:
     """Executes a `bob` command.
 
     Args:
         command: a command to execute
-        options: a map of options to pass to the command
+        input_options: a map of options to pass to the command
 
     Todo:
         - split options into given and parsed dicts.
+        - in case of an error, signal the CLI to match a return code?
     """
     logging.info("Execting command: %s", command)
-    logging.debug("Options: %s", options)
+    logging.debug("Given options: %s", input_options)
 
     cwd = pathlib.Path.cwd()
     logging.debug("Working directory: %s", cwd)
@@ -87,7 +88,7 @@ def bob(command: Command, options: OptionsMapT) -> None:
     env = {
         "root_path": cwd,
     }
-    options = parse_options(options)
+    options = parse_options(input_options)
     for task in tasks:
         module = get_task(task)
 
@@ -95,14 +96,13 @@ def bob(command: Command, options: OptionsMapT) -> None:
             env = module.parse_env(env, options)
 
         try:
-            mod_opts = module.parse_options(options)
+            module.parse_options(input_options, options)
         except AttributeError:
             logging.exception("Error processing options")
-            mod_opts = options
 
         try:
-            cmd_list = module.generate_commands(mod_opts, env)
-        except:
+            cmd_list = module.generate_commands(options, env)
+        except ValueError:
             logging.exception("Valued to generate commansd for the current task")
             break
 

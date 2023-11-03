@@ -70,6 +70,9 @@ tox = [
     "tox>=4.0",
 ]
 
+[tool.setuptools.package-dir]
+bob = "bob"
+
 [tool.black]
 line-length = 88
 target-version = ['py38']

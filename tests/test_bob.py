@@ -5,7 +5,6 @@ import subprocess
 import pytest_mock
 
 import bob
-from bob.api import BuildConfig, generate_targets
 
 
 def test_bob_configure(mocker: pytest_mock.MockerFixture) -> None:
@@ -14,12 +13,9 @@ def test_bob_configure(mocker: pytest_mock.MockerFixture) -> None:
     mocker.patch("subprocess.run")
 
     cmd = bob.Command.Configure
-    targets = generate_targets(["native"])
     options = {
-        "build": {
-            "config": BuildConfig.Debug,
-            "target": targets.Native,
-        },
+        "config": "Debug",
+        "target": "native",
     }
 
     # 2. Execute
@@ -42,12 +38,9 @@ def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
     mocker.patch("subprocess.run")
 
     cmd = bob.Command.Build
-    targets = generate_targets(["native"])
     options = {
-        "build": {
-            "config": BuildConfig.Release,
-            "target": targets.Native,
-        },
+        "config": "release",
+        "target": "native",
     }
 
     # 2. Execute
@@ -71,16 +64,14 @@ def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
 
 
 def test_bob_invalid_toolchain_url(mocker: pytest_mock.MockerFixture) -> None:
+    """Verify bootstrap checks URLs."""
     # 1. Prepare
     mocker.patch("subprocess.run")
 
     cmd = bob.Command.Build
-    targets = generate_targets(["native", "stm32"])
     options = {
-        "build": {
-            "config": BuildConfig.Release,
-            "target": targets.Stm32,
-        },
+        "config": "release",
+        "target": "stm32",
         "toolchains": {
             "gcc_arm": {
                 "windows": "file://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-mingw-w64-i686-arm-none-eabi.zip",
