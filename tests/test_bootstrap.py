@@ -4,6 +4,7 @@ import pathlib
 import shutil
 import urllib.request
 
+import pytest
 import pytest_mock
 
 import bob
@@ -21,11 +22,12 @@ def test_bootstrap_default_options(tmp_path: pathlib.Path) -> None:
     """Verify the default option to bootstrap a project."""
     # 1. Prepare
     options = {}
-    options = parse_options(options)
+    parsed_options = {}
+    parse_options(options, parsed_options)
     env = {"root_path": tmp_path}
 
     # 2. Execute
-    result = generate_commands(options, env)
+    result = generate_commands(parsed_options, env)
 
     # 3. Verify
     nof_commands = 2
@@ -46,7 +48,8 @@ def test_bootstrap_no_dependencies_no_toolchains(tmp_path: pathlib.Path) -> None
     """Verify bootstrap without any dependencies and toolchains."""
     # 1. Prepare
     options = {"dependencies": {}, "toolchains": {}}
-    options = parse_options(options)
+    parsed_options = {}
+    parse_options(options, parsed_options)
 
     cwd = tmp_path / "work"
     cwd.mkdir()
@@ -55,7 +58,7 @@ def test_bootstrap_no_dependencies_no_toolchains(tmp_path: pathlib.Path) -> None
     env = {"dependencies_path": cwd / "external", "root_path": cwd}
 
     # 2. Execute
-    result = generate_commands(options, env)
+    result = generate_commands(parsed_options, env)
 
     # 3. Verify
     nof_commands = 2
@@ -73,7 +76,8 @@ def test_bootstrap_external_git_repo(tmp_path: pathlib.Path) -> None:
             },
         }
     }
-    options = parse_options(options)
+    parsed_options = {}
+    parse_options(options, parsed_options)
 
     cwd = tmp_path / "work"
     cwd.mkdir()
@@ -82,7 +86,7 @@ def test_bootstrap_external_git_repo(tmp_path: pathlib.Path) -> None:
     env = {"dependencies_path": cwd / "external", "root_path": cwd}
 
     # 2. Execute
-    result = generate_commands(options, env)
+    result = generate_commands(parsed_options, env)
 
     # 3. Verify
     nof_commands = 4
@@ -115,7 +119,8 @@ def test_bootstrap_external_git_repo_already_present(tmp_path: pathlib.Path) -> 
             },
         }
     }
-    options = parse_options(options)
+    parsed_options = {}
+    parse_options(options, parsed_options)
 
     cwd = tmp_path / "work"
     cwd.mkdir()
@@ -126,7 +131,7 @@ def test_bootstrap_external_git_repo_already_present(tmp_path: pathlib.Path) -> 
     env = {"dependencies_path": cwd / "external", "root_path": cwd}
 
     # 2. Execute
-    result = generate_commands(options, env)
+    result = generate_commands(parsed_options, env)
 
     # 3. Verify
     nof_commands = 3
@@ -158,16 +163,17 @@ def test_bootstrap_custom_toolchain(
             },
         }
     }
-    options = parse_options(options)
+    parsed_options = {}
+    parse_options(options, parsed_options)
 
     cwd = tmp_path / "work"
     cwd.mkdir()
     os.chdir(str(cwd))
 
-    env = parse_env({"root_path": cwd}, options)
+    env = parse_env({"root_path": cwd}, parsed_options)
 
     # 2. Execute
-    result = generate_commands(options, env)
+    result = generate_commands(parsed_options, env)
 
     # 3. Verify
     nof_commands = 2
@@ -204,7 +210,8 @@ def test_bootstrap_custom_toolchain_already_downloaded(
             },
         }
     }
-    options = parse_options(options)
+    parsed_options = {}
+    parse_options(options, parsed_options)
 
     cwd = tmp_path / "work"
     cwd.mkdir()
@@ -220,10 +227,10 @@ def test_bootstrap_custom_toolchain_already_downloaded(
     )
     archive_path.touch()
 
-    env = parse_env({"root_path": cwd}, options)
+    env = parse_env({"root_path": cwd}, parsed_options)
 
     # 2. Execute
-    result = generate_commands(options, env)
+    result = generate_commands(parsed_options, env)
 
     # 3. Verify
     nof_commands = 2
@@ -254,7 +261,8 @@ def test_bootstrap_custom_toolchain_already_present(
             },
         }
     }
-    options = parse_options(options)
+    parsed_options = {}
+    parse_options(options, parsed_options)
 
     cwd = tmp_path / "work"
     cwd.mkdir()
@@ -274,13 +282,38 @@ def test_bootstrap_custom_toolchain_already_present(
     )
     destination_path.mkdir()
 
-    env = parse_env({"root_path": cwd}, options)
+    env = parse_env({"root_path": cwd}, parsed_options)
 
     # 2. Execute
-    result = generate_commands(options, env)
+    result = generate_commands(parsed_options, env)
 
     # 3. Verify
     nof_commands = 2
     assert len(result) == nof_commands
     urllib.request.urlretrieve.assert_not_called()
     shutil.unpack_archive.assert_not_called()
+
+
+def test_bootstrap_invalid_toolchain_url(tmp_path: pathlib.Path) -> None:
+    """Verify bootstrap will clone extrnal repositories."""
+    # 1. Prepare
+    options = {
+        "toolchains": {
+            "gcc_arm": {
+                "windows": "file://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-mingw-w64-i686-arm-none-eabi.zip",
+                "linux": "file://developer.arm.com/-/media/Files/downloads/gnu/12.2.mpacbti-rel1/binrel/arm-gnu-toolchain-12.2.mpacbti-rel1-x86_64-arm-none-eabi.tar.xz",
+            },
+        }
+    }
+    parsed_options = {}
+    parse_options(options, parsed_options)
+
+    cwd = tmp_path / "work"
+    cwd.mkdir()
+    os.chdir(str(cwd))
+
+    env = parse_env({"root_path": cwd}, parsed_options)
+
+    # 2. Execute
+    with pytest.raises(ValueError, match="URL must start with 'http:' or 'https:'"):
+        generate_commands(parsed_options, env)

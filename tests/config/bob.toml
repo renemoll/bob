@@ -9,5 +9,13 @@ tag = "master"
 [toolchains.linux]
 container = "renemoll/builder_clang"
 
+[toolchains.stm32]
+container = "renemoll/builder_arm_gcc"
+additional_options.configuration = "-G Ninja"
+
 [targets.linux]
 toolchain = "linux"
+
+[targets.stm32]
+toolchain = "stm32"
+additional_options.configuration = "-DSTM32F4"

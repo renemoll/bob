@@ -48,20 +48,24 @@ def parse_env(env: EnvMapT, options: OptionsMapT) -> EnvMapT:
     return env
 
 
-def parse_options(options: OptionsMapT) -> OptionsMapT:
+def parse_options(options: OptionsMapT, parsed: OptionsMapT) -> None:
     """Update the options map.
 
     Args:
-        options: set of options to take into account.
+        options: set of options passed as input.
+        parsed: parsed options.
 
-    Returns:
-        An updated options map.
+    Todo:
+    - toolchain may have container and archive?
     """
+    parsed["bootstrap"] = {}
+
     deps = {}
     with contextlib.suppress(KeyError):
         for k, v in options["dependencies"].items():
             if isinstance(v, collections.abc.Mapping):
                 deps[k] = v
+    parsed["bootstrap"]["dependencies"] = deps
 
     tools = {}
     with contextlib.suppress(KeyError):
@@ -69,10 +73,7 @@ def parse_options(options: OptionsMapT) -> OptionsMapT:
         for k, v in options["toolchains"].items():
             with contextlib.suppress(TypeError, KeyError):
                 tools[k] = v[os]
-
-    options["bootstrap"] = {"dependencies": deps, "toolchains": tools}
-
-    return options
+    parsed["bootstrap"]["toolchains"] = tools
 
 
 def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:

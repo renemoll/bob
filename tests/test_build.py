@@ -1,8 +1,7 @@
 """Tests specifically for the build command."""
 import pathlib
 
-import bob
-from bob.api import generate_targets
+from bob.api import Command
 from bob.common import parse_options
 from bob.tasks.build import depends_on, generate_commands
 
@@ -11,7 +10,7 @@ def test_dependency() -> None:
     """Verify build's dependecies."""
     result = depends_on()
 
-    assert result == [bob.Command.Configure]
+    assert result == [Command.Configure]
 
 
 def test_build_default_options(tmp_path: pathlib.Path) -> None:
@@ -21,15 +20,15 @@ def test_build_default_options(tmp_path: pathlib.Path) -> None:
     - Actually default the options?
     """
     # 1. Prepare
-    targets = generate_targets(["native"])
     options = {
-        "build": {"config": bob.BuildConfig.Release, "target": targets.Native},
+        "config": "Release",
+        "target": "Native",
     }
-    options = parse_options(options)
+    parsed_options = parse_options(options)
     env = {"root_path": tmp_path, "build_path": "build/native-release"}
 
     # 2. Execute
-    result = generate_commands(options, env)
+    result = generate_commands(parsed_options, env)
 
     # 3. Verify
     assert len(result) == 1
@@ -39,17 +38,17 @@ def test_build_default_options(tmp_path: pathlib.Path) -> None:
 def test_build_with_container_linux_clang(tmp_path: pathlib.Path) -> None:
     """Verify Linux build triggers the use of a Linux container."""
     # 1. Prepare
-    targets = generate_targets(["native", "linux"])
     options = {
-        "build": {"config": bob.BuildConfig.Release, "target": targets.Linux},
+        "config": "release",
+        "target": "linux",
         "toolchains": {"linux": {"container": "renemoll/builder_clang"}},
         "targets": {"linux": {"toolchain": "linux"}},
     }
-    options = parse_options(options)
+    parsed_options = parse_options(options)
     env = {"root_path": tmp_path, "build_path": "build/linux-release"}
 
     # 2. Execute
-    result = generate_commands(options, env)
+    result = generate_commands(parsed_options, env)
 
     # 3. Verify
     assert len(result) == 1
