@@ -901,3 +901,145 @@ def test_cli_error_invalid_toml_file(
     # 3. Verify
     cwd = pathlib.Path.cwd()
     assert not (cwd / "external").is_dir()
+
+
+def test_cli_install_default(
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path  # noqa: ARG001
+) -> None:
+    """Verify the CLI performs the correct argument conversion for an install."""
+    # 1. Prepare
+    mocker.patch("subprocess.run")
+    mocker.patch("docopt.docopt")
+
+    docopt.docopt.return_value = {
+        "--help": False,
+        "--version": False,
+        "<target>": None,
+        "bootstrap": False,
+        "build": False,
+        "configure": False,
+        "install": True,
+        "debug": False,
+        "release": False,
+    }
+
+    # 2. Execute
+    result = main()
+
+    # 3. Verify
+    assert result == 0
+    cwd = pathlib.Path.cwd()
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "cmake",
+                "-B",
+                "build/native-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
+    )
+    calls.append(
+        unittest.mock.call(["cmake", "--build", "build/native-release"], check=True)
+    )
+    calls.append(
+        unittest.mock.call(
+            [
+                "cmake",
+                "--install",
+                "build/native-release",
+            ],
+            check=True,
+        )
+    )
+
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
+
+
+def test_cli_install_linux_default(
+    mocker: pytest_mock.MockerFixture, valid_config_path: pathlib.Path  # noqa: ARG001
+) -> None:
+    """Verify the CLI performs the correct argument conversion for an install."""
+    # 1. Prepare
+    mocker.patch("subprocess.run")
+    mocker.patch("docopt.docopt")
+
+    docopt.docopt.return_value = {
+        "--help": False,
+        "--version": False,
+        "<target>": "linux",
+        "bootstrap": False,
+        "build": False,
+        "configure": False,
+        "install": True,
+        "debug": False,
+        "release": False,
+    }
+
+    # 2. Execute
+    result = main()
+
+    # 3. Verify
+    assert result == 0
+    cwd = pathlib.Path.cwd()
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "-B",
+                "build/linux-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
+    )
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "--build",
+                "build/linux-release",
+            ],
+            check=True,
+        )
+    )
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "--install",
+                "build/linux-release",
+            ],
+            check=True,
+        )
+    )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)

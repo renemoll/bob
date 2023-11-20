@@ -9,6 +9,7 @@ class Command(enum.Enum):
     Bootstrap = 1
     Configure = 2
     Build = 3
+    Install = 4
     # Test
     # Debug
     # Format
