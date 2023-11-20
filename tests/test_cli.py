@@ -3,6 +3,7 @@ import os
 import pathlib
 import shutil
 import subprocess
+import unittest
 
 import docopt
 import pytest
@@ -11,7 +12,16 @@ import pytest_mock
 from bob.cli import main
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
+def no_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+    """Fixture for a working folder without a configuration file."""
+    work = tmp_path_factory.mktemp("work")
+    os.chdir(str(work))
+
+    return work
+
+
+@pytest.fixture(scope="function")
 def valid_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
     """Fixture for a working folder with a valid configuration file."""
     work = tmp_path_factory.mktemp("work")
@@ -23,8 +33,20 @@ def valid_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
     return work
 
 
+@pytest.fixture(scope="function")
+def invalid_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
+    """Fixture for a working folder with an invalid configuration file."""
+    work = tmp_path_factory.mktemp("work")
+    os.chdir(str(work))
+
+    toml_file = pathlib.Path(__file__).parent.resolve() / "config" / "invalid.toml"
+    shutil.copy(toml_file, work / "bob.toml")
+
+    return work
+
+
 def test_cli_bootstrap(
-    mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path
+    mocker: pytest_mock.MockerFixture, no_config_path: pathlib.Path
 ) -> None:
     """Verify the CLI performs a plain bootstrap operation."""
     # 1. Prepare
@@ -37,20 +59,17 @@ def test_cli_bootstrap(
         "bootstrap": True,
         "build": False,
         "configure": False,
+        "install": False,
         "debug": False,
         "release": False,
     }
-
-    work = tmp_path / "work"
-    work.mkdir()
-    os.chdir(str(work))
 
     # 2. Execute
     result = main()
 
     # 3. Verify
     assert result == 0
-    cmake = work / "cmake"
+    cmake = no_config_path / "cmake"
     assert cmake.is_dir()
     cmake_file = cmake / "FindBob.cmake"
     assert cmake_file.is_file()
@@ -58,7 +77,28 @@ def test_cli_bootstrap(
     assert cmake_file.read_text().strip() == ref.read_text().strip()
 
 
-def test_cli_configure_default(mocker: pytest_mock.MockerFixture) -> None:
+def bootstrap_calls():
+    cwd = pathlib.Path.cwd()
+    template = (
+        pathlib.Path(__file__).parent.parent.resolve()
+        / "bob"
+        / "templates"
+        / "FindBob.cmake"
+    )
+
+    return [
+        unittest.mock.call(
+            ["cmake", "-E", "make_directory", f"{cwd}/cmake"], check=True
+        ),
+        unittest.mock.call(
+            ["cmake", "-E", "copy", str(template), f"{cwd}/cmake"], check=True
+        ),
+    ]
+
+
+def test_cli_configure_default(
+    mocker: pytest_mock.MockerFixture, no_config_path: pathlib.Path
+) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
     mocker.patch("subprocess.run")
@@ -71,6 +111,7 @@ def test_cli_configure_default(mocker: pytest_mock.MockerFixture) -> None:
         "bootstrap": False,
         "build": False,
         "configure": True,
+        "install": False,
         "debug": False,
         "release": False,
     }
@@ -80,17 +121,22 @@ def test_cli_configure_default(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == 0
-    subprocess.run.assert_any_call(
-        [
-            "cmake",
-            "-B",
-            "build/native-release",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Release",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "cmake",
+                "-B",
+                "build/native-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_configure_release(mocker: pytest_mock.MockerFixture) -> None:
@@ -106,6 +152,7 @@ def test_cli_configure_release(mocker: pytest_mock.MockerFixture) -> None:
         "bootstrap": False,
         "build": False,
         "configure": True,
+        "install": False,
         "debug": False,
         "release": True,
     }
@@ -115,17 +162,22 @@ def test_cli_configure_release(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == 0
-    subprocess.run.assert_any_call(
-        [
-            "cmake",
-            "-B",
-            "build/native-release",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Release",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "cmake",
+                "-B",
+                "build/native-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_configure_debug(mocker: pytest_mock.MockerFixture) -> None:
@@ -141,6 +193,7 @@ def test_cli_configure_debug(mocker: pytest_mock.MockerFixture) -> None:
         "bootstrap": False,
         "build": False,
         "configure": True,
+        "install": False,
         "debug": True,
         "release": False,
     }
@@ -150,17 +203,49 @@ def test_cli_configure_debug(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == 0
-    subprocess.run.assert_any_call(
-        [
-            "cmake",
-            "-B",
-            "build/native-debug",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Debug",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "cmake",
+                "-B",
+                "build/native-debug",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Debug",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
+
+
+def dependency_calls():
+    cwd = pathlib.Path.cwd()
+    return [
+        unittest.mock.call(
+            [
+                "git",
+                "clone",
+                "https://github.com/renemoll/bob-cmake.git",
+                f"{cwd}/external/test",
+            ],
+            check=True,
+        ),
+        unittest.mock.call(
+            [
+                "cmake",
+                "-E",
+                "chdir",
+                f"{cwd}/external/test",
+                "git",
+                "checkout",
+                "master",
+            ],
+            check=True,
+        ),
+    ]
 
 
 def test_cli_configure_linux_default(
@@ -178,6 +263,7 @@ def test_cli_configure_linux_default(
         "bootstrap": False,
         "build": False,
         "configure": True,
+        "install": False,
         "debug": False,
         "release": False,
     }
@@ -188,25 +274,29 @@ def test_cli_configure_linux_default(
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_clang",
-            "cmake",
-            "-B",
-            "build/linux-release",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Release",
-            # "-G",
-            # "Ninja",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "-B",
+                "build/linux-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_configure_linux_release(
@@ -224,6 +314,7 @@ def test_cli_configure_linux_release(
         "bootstrap": False,
         "build": False,
         "configure": True,
+        "install": False,
         "debug": False,
         "release": True,
     }
@@ -234,23 +325,29 @@ def test_cli_configure_linux_release(
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_clang",
-            "cmake",
-            "-B",
-            "build/linux-release",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Release",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "-B",
+                "build/linux-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_configure_linux_debug(
@@ -268,6 +365,7 @@ def test_cli_configure_linux_debug(
         "bootstrap": False,
         "build": False,
         "configure": True,
+        "install": False,
         "debug": True,
         "release": False,
     }
@@ -278,23 +376,29 @@ def test_cli_configure_linux_debug(
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_clang",
-            "cmake",
-            "-B",
-            "build/linux-debug",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Debug",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "-B",
+                "build/linux-debug",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Debug",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_configure_stm32_default(
@@ -312,6 +416,7 @@ def test_cli_configure_stm32_default(
         "bootstrap": False,
         "build": False,
         "configure": True,
+        "install": False,
         "debug": False,
         "release": False,
     }
@@ -322,26 +427,32 @@ def test_cli_configure_stm32_default(
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_arm_gcc",
-            "cmake",
-            "-B",
-            "build/stm32-release",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Release",
-            "-DSTM32F4",
-            "-G",
-            "Ninja",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_arm_gcc",
+                "cmake",
+                "-B",
+                "build/stm32-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DSTM32F4",
+                "-G",
+                "Ninja",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_configure_invalid_target(mocker: pytest_mock.MockerFixture) -> None:
@@ -357,6 +468,7 @@ def test_cli_configure_invalid_target(mocker: pytest_mock.MockerFixture) -> None
         "bootstrap": False,
         "build": False,
         "configure": True,
+        "install": False,
         "debug": True,
         "release": False,
     }
@@ -383,6 +495,7 @@ def test_cli_build_default(mocker: pytest_mock.MockerFixture) -> None:
         "bootstrap": False,
         "build": True,
         "configure": False,
+        "install": False,
         "debug": False,
         "release": False,
     }
@@ -392,20 +505,26 @@ def test_cli_build_default(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == 0
-    subprocess.run.assert_any_call(
-        [
-            "cmake",
-            "-B",
-            "build/native-release",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Release",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "cmake",
+                "-B",
+                "build/native-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
     )
-    subprocess.run.assert_any_call(
-        ["cmake", "--build", "build/native-release"], check=True
+    calls.append(
+        unittest.mock.call(["cmake", "--build", "build/native-release"], check=True)
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_build_release(mocker: pytest_mock.MockerFixture) -> None:
@@ -421,6 +540,7 @@ def test_cli_build_release(mocker: pytest_mock.MockerFixture) -> None:
         "bootstrap": False,
         "build": True,
         "configure": False,
+        "install": False,
         "debug": False,
         "release": True,
     }
@@ -430,20 +550,26 @@ def test_cli_build_release(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == 0
-    subprocess.run.assert_any_call(
-        [
-            "cmake",
-            "-B",
-            "build/native-release",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Release",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "cmake",
+                "-B",
+                "build/native-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
     )
-    subprocess.run.assert_any_call(
-        ["cmake", "--build", "build/native-release"], check=True
+    calls.append(
+        unittest.mock.call(["cmake", "--build", "build/native-release"], check=True)
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_build_debug(mocker: pytest_mock.MockerFixture) -> None:
@@ -459,6 +585,7 @@ def test_cli_build_debug(mocker: pytest_mock.MockerFixture) -> None:
         "bootstrap": False,
         "build": True,
         "configure": False,
+        "install": False,
         "debug": True,
         "release": False,
     }
@@ -468,20 +595,26 @@ def test_cli_build_debug(mocker: pytest_mock.MockerFixture) -> None:
 
     # 3. Verify
     assert result == 0
-    subprocess.run.assert_any_call(
-        [
-            "cmake",
-            "-B",
-            "build/native-debug",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Debug",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "cmake",
+                "-B",
+                "build/native-debug",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Debug",
+            ],
+            check=True,
+        )
     )
-    subprocess.run.assert_any_call(
-        ["cmake", "--build", "build/native-debug"], check=True
+    calls.append(
+        unittest.mock.call(["cmake", "--build", "build/native-debug"], check=True)
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
@@ -497,6 +630,7 @@ def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
         "bootstrap": False,
         "build": True,
         "configure": False,
+        "install": False,
         "debug": False,
         "release": False,
     }
@@ -507,39 +641,45 @@ def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_clang",
-            "cmake",
-            "-B",
-            "build/linux-release",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Release",
-            # "-G",
-            # "Ninja",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "-B",
+                "build/linux-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
     )
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_clang",
-            "cmake",
-            "--build",
-            "build/linux-release",
-        ],
-        check=True,
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "--build",
+                "build/linux-release",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_build_linux_release(
@@ -557,6 +697,7 @@ def test_cli_build_linux_release(
         "bootstrap": False,
         "build": True,
         "configure": False,
+        "install": False,
         "debug": False,
         "release": True,
     }
@@ -567,39 +708,45 @@ def test_cli_build_linux_release(
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_clang",
-            "cmake",
-            "-B",
-            "build/linux-release",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Release",
-            # "-G",
-            # "Ninja",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "-B",
+                "build/linux-release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+            ],
+            check=True,
+        )
     )
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_clang",
-            "cmake",
-            "--build",
-            "build/linux-release",
-        ],
-        check=True,
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "--build",
+                "build/linux-release",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_build_linux_debug(
@@ -617,6 +764,7 @@ def test_cli_build_linux_debug(
         "bootstrap": False,
         "build": True,
         "configure": False,
+        "install": False,
         "debug": True,
         "release": False,
     }
@@ -627,37 +775,45 @@ def test_cli_build_linux_debug(
     # 3. Verify
     assert result == 0
     cwd = pathlib.Path.cwd()
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_clang",
-            "cmake",
-            "-B",
-            "build/linux-debug",
-            "-S",
-            ".",
-            "-DCMAKE_BUILD_TYPE=Debug",
-        ],
-        check=True,
+    calls = bootstrap_calls()
+    calls += dependency_calls()
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "-B",
+                "build/linux-debug",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Debug",
+            ],
+            check=True,
+        )
     )
-    subprocess.run.assert_any_call(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{cwd}:/work/",
-            "renemoll/builder_clang",
-            "cmake",
-            "--build",
-            "build/linux-debug",
-        ],
-        check=True,
+    calls.append(
+        unittest.mock.call(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{cwd}:/work/",
+                "renemoll/builder_clang",
+                "cmake",
+                "--build",
+                "build/linux-debug",
+            ],
+            check=True,
+        )
     )
+    assert subprocess.run.call_count == len(calls)
+    subprocess.run.assert_has_calls(calls)
 
 
 def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
@@ -673,6 +829,7 @@ def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
         "bootstrap": False,
         "build": True,
         "configure": False,
+        "install": False,
         "debug": True,
         "release": False,
     }
@@ -707,6 +864,7 @@ def test_cli_read_toml_file(
         "bootstrap": True,
         "build": False,
         "configure": False,
+        "install": False,
         "debug": False,
         "release": False,
     }
@@ -719,7 +877,7 @@ def test_cli_read_toml_file(
 
 
 def test_cli_error_invalid_toml_file(
-    mocker: pytest_mock.MockerFixture, tmp_path: pathlib.Path
+    mocker: pytest_mock.MockerFixture, invalid_config_path: pathlib.Path  # noqa: ARG001
 ) -> None:
     """Verify the CLI reads and utilizes an options TOML file."""
     # 1. Prepare
@@ -732,19 +890,14 @@ def test_cli_error_invalid_toml_file(
         "bootstrap": True,
         "build": False,
         "configure": False,
+        "install": False,
         "debug": False,
         "release": False,
     }
-
-    work = tmp_path / "work"
-    work.mkdir()
-    os.chdir(str(work))
-
-    toml_file = pathlib.Path(__file__).parent.resolve() / "config" / "invalid.toml"
-    shutil.copy(toml_file, work / "bob.toml")
 
     # 2. Execute
     main()
 
     # 3. Verify
-    assert not (work / "external").is_dir()
+    cwd = pathlib.Path.cwd()
+    assert not (cwd / "external").is_dir()
