@@ -3,6 +3,7 @@ import os
 import pathlib
 import shutil
 import subprocess
+import typing
 import unittest
 
 import docopt
@@ -12,7 +13,7 @@ import pytest_mock
 from bob.cli import main
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def no_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
     """Fixture for a working folder without a configuration file."""
     work = tmp_path_factory.mktemp("work")
@@ -21,7 +22,7 @@ def no_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
     return work
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def valid_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
     """Fixture for a working folder with a valid configuration file."""
     work = tmp_path_factory.mktemp("work")
@@ -33,7 +34,7 @@ def valid_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
     return work
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def invalid_config_path(tmp_path_factory: pytest.TempPathFactory) -> pathlib.Path:
     """Fixture for a working folder with an invalid configuration file."""
     work = tmp_path_factory.mktemp("work")
@@ -77,7 +78,8 @@ def test_cli_bootstrap(
     assert cmake_file.read_text().strip() == ref.read_text().strip()
 
 
-def bootstrap_calls():
+def bootstrap_calls() -> typing.List[typing.Any]:
+    """Generate the mock calls for the bootstrap task."""
     cwd = pathlib.Path.cwd()
     template = (
         pathlib.Path(__file__).parent.parent.resolve()
@@ -97,7 +99,7 @@ def bootstrap_calls():
 
 
 def test_cli_configure_default(
-    mocker: pytest_mock.MockerFixture, no_config_path: pathlib.Path
+    mocker: pytest_mock.MockerFixture, no_config_path: pathlib.Path  # noqa: ARG001
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
@@ -221,7 +223,8 @@ def test_cli_configure_debug(mocker: pytest_mock.MockerFixture) -> None:
     subprocess.run.assert_has_calls(calls)
 
 
-def dependency_calls():
+def dependency_calls() -> typing.List[typing.Any]:
+    """Generate the mock calls for the dependencies."""
     cwd = pathlib.Path.cwd()
     return [
         unittest.mock.call(
@@ -928,7 +931,6 @@ def test_cli_install_default(
 
     # 3. Verify
     assert result == 0
-    cwd = pathlib.Path.cwd()
     calls = bootstrap_calls()
     calls += dependency_calls()
     calls.append(
