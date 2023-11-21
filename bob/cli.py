@@ -4,12 +4,15 @@ Usage:
     bob.py bootstrap [<target>]
     bob.py configure [<target>] [(debug|release)]
     bob.py build [<target>] [(debug|release)]
+    bob.py install [<target>] [(debug|release)]
     bob.py -h | --help
     bob.py --version
 
 Possible commands:
+    bootstrap: retrieve tooling/external dependencies.
     build:     build the project for the a target.
     configure: prepare the project for the first build, automatically executed with build.
+    install:   build and install the project.
 
 Options:
     -h --help        Show this screen.
@@ -45,6 +48,7 @@ def main() -> int:
     )
 
     arguments = docopt.docopt(__doc__, version=__version__)
+    logging.info(arguments)
     try:
         command = _determine_command(arguments)
         options = _determine_options(arguments)
@@ -69,6 +73,8 @@ def _determine_command(arguments: typing.Mapping[str, ArgsT]) -> Command:
         return Command.Bootstrap
     if arguments["configure"]:
         return Command.Configure
+    if arguments["install"]:
+        return Command.Install
     return Command.Build
 
 

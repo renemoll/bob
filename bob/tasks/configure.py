@@ -61,7 +61,7 @@ def parse_options(options: OptionsMapT, parsed: OptionsMapT) -> None:
 
 
 def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
-    """Generate a set of configure the build.
+    """Generate a set of commands to configure the build.
 
     Args:
         options: set of options to take into account.
