@@ -27,6 +27,11 @@ How to use
 
   bob build
 
+Other commands available are:
+* `bootstrap`: gather dependencies and toolchain(s)
+* `configure`: configure a build system.
+* `install`: install the package.
+
 Requirements
 ============
 
@@ -85,8 +90,3 @@ Configured tools
 2. ``ruff`` for linting.
 3. ``pylint`` for linting.
 4. ``mypy`` for static type checking.
-
-Roadmap
-=======
-
-1. Python support
