@@ -54,7 +54,10 @@ def parse_options(options: OptionsMapT, parsed: OptionsMapT) -> None:
         result += addopts.split(" ")
 
     with contextlib.suppress(KeyError):
-        addopts = options["toolchains"][target]["additional_options"]["configuration"]
+        toolchain = options["targets"][target]["toolchain"]
+        addopts = options["toolchains"][toolchain]["additional_options"][
+            "configuration"
+        ]
         result += addopts.split(" ")
 
     parsed["configure"]["additional_options"] = result

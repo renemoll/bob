@@ -37,7 +37,8 @@ def parse_options(options: OptionsMapT) -> OptionsMapT:
 
     with contextlib.suppress(KeyError):
         target = result["build_target"].name.lower()  # type: ignore [attr-defined]
-        result["container"] = options["toolchains"][target]["container"]
+        toolchain = options["targets"][target]["toolchain"]
+        result["container"] = options["toolchains"][toolchain]["container"]
 
     return result
 
