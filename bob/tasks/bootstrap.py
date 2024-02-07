@@ -106,7 +106,8 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
 
 
 def _setup_bob(root_path: pathlib.Path) -> CommandListT:
-    """
+    """Install Bob into the cmake folder.
+
     Todo:
      - determine if FindBob.cmake should always be overwritten. Might not be expected by users.
     """
@@ -129,7 +130,7 @@ def _gather_dependencies(
     output_path: pathlib.Path,
 ) -> CommandListT:
     if len(deps) == 0:
-        return
+        return []
 
     logging.debug("Ensure external folder: %s", output_path)
     output_path.mkdir(parents=True, exist_ok=True)
