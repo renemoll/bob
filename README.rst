@@ -60,6 +60,12 @@ Development
 
    pytest
 
+4. Install pre-commit:
+
+.. code-block:: bash
+
+   pre-commit install
+
 
 Run the complete test-suite
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
