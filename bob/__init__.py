@@ -3,4 +3,4 @@
 from bob.api import BuildConfig, Command
 from bob.bob import bob
 
-__version__ = "0.2.4"
+__version__ = "0.2.5"
