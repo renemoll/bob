@@ -104,6 +104,9 @@ target-version = "py38"
 line-length = 88
 indent-width = 4
 
+extend-exclude = ["__init__.py"]
+
+[tool.ruff.lint]
 pydocstyle.convention = "google"
 
 select = ["ALL"]
@@ -126,7 +129,5 @@ ignore = [
     "TRY003"
 ]
 
-extend-exclude = ["__init__.py"]
-
-[tool.ruff.extend-per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "test_*.py" = ["S101"]
