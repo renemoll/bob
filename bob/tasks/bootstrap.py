@@ -106,6 +106,10 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
 
 
 def _setup_bob(root_path: pathlib.Path) -> CommandListT:
+    """
+    Todo:
+     - determine if FindBob.cmake should always be overwritten. Might not be expected by users.
+    """
     output_folder = root_path / "cmake"
     logging.debug("Determined cmake folder: %s", output_folder)
     output_folder.mkdir(parents=True, exist_ok=True)
