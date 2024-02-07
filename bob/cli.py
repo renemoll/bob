@@ -48,7 +48,7 @@ def main() -> int:
     )
 
     arguments = docopt.docopt(__doc__, version=__version__)
-    logging.info(arguments)
+    logging.debug(arguments)
     try:
         command = _determine_command(arguments)
         options = _determine_options(arguments)

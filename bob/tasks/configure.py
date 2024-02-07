@@ -48,19 +48,25 @@ def parse_options(options: OptionsMapT, parsed: OptionsMapT) -> None:
     parsed["configure"] = {}
 
     target = parsed["build_target"].name.lower()
-    result = []
+    addopts = []
     with contextlib.suppress(KeyError):
-        addopts = options["targets"][target]["additional_options"]["configuration"]
-        result += addopts.split(" ")
+        config = options["targets"][target]["additional_options"]["configuration"]
+        addopts += config.split(" ")
 
     with contextlib.suppress(KeyError):
         toolchain = options["targets"][target]["toolchain"]
-        addopts = options["toolchains"][toolchain]["additional_options"][
-            "configuration"
-        ]
-        result += addopts.split(" ")
+        config = options["toolchains"][toolchain]["additional_options"]["configuration"]
+        addopts += config.split(" ")
 
-    parsed["configure"]["additional_options"] = result
+    parsed["configure"]["additional_options"] = addopts
+
+    with contextlib.suppress(KeyError):
+        toolchain = options["targets"][target]["toolchain"]
+        toolchain_file = options["toolchains"][toolchain]["toolchain_file"]
+        parsed["configure"]["toolchain_file"] = toolchain_file
+
+    logging.debug("parse_options input: %s", options)
+    logging.debug("parse_options output: %s", parsed)
 
 
 def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
@@ -79,6 +85,9 @@ def generate_commands(options: OptionsMapT, env: EnvMapT) -> CommandListT:
     steps += _generate_build_system_command(
         options, env["build_path"], env["source_path"]
     )
+
+    with contextlib.suppress(KeyError):
+        steps += [f"-DCMAKE_TOOLCHAIN_FILE={options['configure']['toolchain_file']}"]
 
     with contextlib.suppress(KeyError):
         steps += options["configure"]["additional_options"]
