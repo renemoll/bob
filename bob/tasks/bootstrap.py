@@ -124,6 +124,9 @@ def _gather_dependencies(
     deps: typing.Mapping[str, typing.Mapping[str, typing.Any]],
     output_path: pathlib.Path,
 ) -> CommandListT:
+    if len(deps) == 0:
+        return
+
     logging.debug("Ensure external folder: %s", output_path)
     output_path.mkdir(parents=True, exist_ok=True)
 
@@ -187,6 +190,9 @@ def _extract_package(archive: pathlib.Path, output_path: pathlib.Path) -> None:
 def _gather_toolchain(
     toolchains: typing.Mapping[str, str], output_path: pathlib.Path
 ) -> None:
+    if len(toolchains) == 0:
+        return
+
     logging.debug("Ensure toolchain folder: %s", output_path)
     output_path.mkdir(parents=True, exist_ok=True)
     archive_path = output_path / "download"
