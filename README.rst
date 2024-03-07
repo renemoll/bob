@@ -2,6 +2,9 @@
 Meet Bob
 ========
 
+.. image:: https://readthedocs.org/projects/bob-the-developer/badge/?version=latest
+    :target: https://bob-the-developer.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 .. image:: https://github.com/renemoll/bob/actions/workflows/unit-testing.yaml/badge.svg
    :target: https://github.com/renemoll/bob/actions/workflows/unit-testing.yaml
    :alt: Unit tests
