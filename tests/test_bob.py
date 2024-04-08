@@ -10,7 +10,10 @@ import bob
 def test_bob_configure(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the configure command produces a configure command call."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     cmd = bob.Command.Configure
     options = {
@@ -35,7 +38,10 @@ def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
     * Improve by enforcing call order. However, I do not want to assert every in between call.
     """
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     cmd = bob.Command.Build
     options = {
@@ -66,7 +72,10 @@ def test_bob_build(mocker: pytest_mock.MockerFixture) -> None:
 def test_bob_invalid_toolchain_url(mocker: pytest_mock.MockerFixture) -> None:
     """Verify bootstrap checks URLs."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     cmd = bob.Command.Build
     options = {

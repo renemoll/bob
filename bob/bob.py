@@ -11,6 +11,8 @@ import time
 import types
 import typing
 
+from packaging import version
+
 from bob.api import Command
 from bob.common import parse_options
 from bob.modules import get_task
@@ -79,6 +81,9 @@ def bob(command: Command, input_options: OptionsMapT) -> None:
     logging.info("Execting command: %s", command)
     logging.debug("Given options: %s", input_options)
 
+    if not _required_tools_present():
+        raise RuntimeError("Missing dependencies")
+
     cwd = pathlib.Path.cwd()
     logging.debug("Working directory: %s", cwd)
 
@@ -129,3 +134,28 @@ def _determine_dependent_tasks(command: Command) -> typing.List[Command]:
     result = scan_deps([command])
     result.reverse()
     return result
+
+
+def _required_tools_present() -> bool:
+    try:
+        output = subprocess.check_output(
+            ["cmake", "--version"], text=True  # noqa: S607
+        )
+        line = output.splitlines()[0]
+        cmake_version = version.parse(line.split()[2])
+    except FileNotFoundError:
+        logging.exception("Unable to get the cmake version")
+        return False
+    logging.debug("Found cmake version: %s", cmake_version)
+
+    try:
+        output = subprocess.check_output(["git", "--version"], text=True)  # noqa: S607
+        git_version = output.split()[2]
+    except FileNotFoundError:
+        logging.exception("Unable to get the git version")
+        return False
+    logging.debug("Found git version: %s", git_version)
+
+    return (cmake_version > version.parse("3.0")) and (
+        version.parse(git_version) > version.parse("2.0")
+    )
