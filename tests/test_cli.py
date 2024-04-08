@@ -103,8 +103,11 @@ def test_cli_configure_default(
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -144,8 +147,11 @@ def test_cli_configure_default(
 def test_cli_configure_release(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -185,8 +191,11 @@ def test_cli_configure_release(mocker: pytest_mock.MockerFixture) -> None:
 def test_cli_configure_debug(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -256,8 +265,11 @@ def test_cli_configure_linux_default(
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -307,8 +319,11 @@ def test_cli_configure_linux_release(
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -358,8 +373,11 @@ def test_cli_configure_linux_debug(
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -409,8 +427,11 @@ def test_cli_configure_stm32_default(
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -461,8 +482,11 @@ def test_cli_configure_stm32_default(
 def test_cli_configure_invalid_target(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a configure."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -488,8 +512,11 @@ def test_cli_configure_invalid_target(mocker: pytest_mock.MockerFixture) -> None
 def test_cli_build_default(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -533,8 +560,11 @@ def test_cli_build_default(mocker: pytest_mock.MockerFixture) -> None:
 def test_cli_build_release(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -578,8 +608,11 @@ def test_cli_build_release(mocker: pytest_mock.MockerFixture) -> None:
 def test_cli_build_debug(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -623,8 +656,11 @@ def test_cli_build_debug(mocker: pytest_mock.MockerFixture) -> None:
 def test_cli_build_linux_default(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -690,8 +726,11 @@ def test_cli_build_linux_release(
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -757,8 +796,11 @@ def test_cli_build_linux_debug(
 ) -> None:
     """Verify the CLI performs the correct argument conversion for a build."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -822,8 +864,11 @@ def test_cli_build_linux_debug(
 def test_cli_build_error(mocker: pytest_mock.MockerFixture) -> None:
     """Verify the CLI captures subprocess exceptions."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -911,8 +956,11 @@ def test_cli_install_default(
 ) -> None:
     """Verify the CLI performs the correct argument conversion for an install."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,
@@ -969,8 +1017,11 @@ def test_cli_install_linux_default(
 ) -> None:
     """Verify the CLI performs the correct argument conversion for an install."""
     # 1. Prepare
+    mocker.patch("subprocess.check_output")
     mocker.patch("subprocess.run")
     mocker.patch("docopt.docopt")
+
+    subprocess.check_output.return_value = "dummy string 4.0.1"
 
     docopt.docopt.return_value = {
         "--help": False,

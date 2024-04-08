@@ -64,6 +64,9 @@ def main() -> int:
     except subprocess.CalledProcessError:
         logging.exception("Exception caught executing commands")
         return EX_SOFTWARE
+    except RuntimeError:
+        logging.exception("Exception caught before executing commands")
+        return EX_SOFTWARE
 
     return EX_OK
 
